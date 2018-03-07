@@ -7,7 +7,7 @@ environment:
 build_script:
 - cmd: dotnet build -c %BUILDCONFIG%
 test_script:
-- cmd: dotnet test -c %BUILDCONFIG% Hedgehog.Experimental.Tests
+- cmd: dotnet test -c %BUILDCONFIG% Cvdm.ErrorHandling.Tests
 artifacts:
 - path: '**\Release\*.nupkg'
 deploy:
