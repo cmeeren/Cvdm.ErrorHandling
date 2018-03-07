@@ -5,13 +5,18 @@
     <FSharpCoreImplicitPackageVersion>4.1.*</FSharpCoreImplicitPackageVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <Version>0.1.0</Version>
+    <Version>0.1.1</Version>
     <Authors>Christer van der Meeren</Authors>
   </PropertyGroup>
 
   <PropertyGroup>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors />
+    <Description>AsyncResult and Result computation expressions and helper methods for error handling in F#.</Description>
+    <PackageLicenseUrl>https://github.com/cmeeren/Cvdm.ErrorHandling/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/cmeeren/Cvdm.ErrorHandling</PackageProjectUrl>
+    <PackageTags>f#, error handling, computation expression, asyncresult, async, result</PackageTags>
+    <PackageReleaseNotes />
   </PropertyGroup>
 
   <ItemGroup>
