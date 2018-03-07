@@ -9,7 +9,6 @@
     <Compile Include="ResultBuilderTests.fs" />
     <Compile Include="AsyncResultBuilderTests.fs" />
     <Compile Include="HelperTests.fs" />
-    <Compile Include="DummyEntryPoint.fs" />
   </ItemGroup>
   
   <ItemGroup>
