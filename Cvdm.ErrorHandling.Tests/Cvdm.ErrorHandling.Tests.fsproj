@@ -4,6 +4,10 @@
     <TargetFrameworks>netcoreapp2.0;net461</TargetFrameworks>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <NoWarn>FS0988</NoWarn>
+  </PropertyGroup>
+
   <ItemGroup>
     <Compile Include="Helpers.fs" />
     <Compile Include="ResultBuilderTests.fs" />
