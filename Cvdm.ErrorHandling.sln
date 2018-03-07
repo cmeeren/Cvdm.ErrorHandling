@@ -3,9 +3,14 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27428.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Cvdm.ErrorHandling", "Cvdm.ErrorHandling\Cvdm.ErrorHandling.fsproj", "{CB8C704A-72F2-44E3-A912-E44629C62A9D}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Cvdm.ErrorHandling", "Cvdm.ErrorHandling\Cvdm.ErrorHandling.fsproj", "{CB8C704A-72F2-44E3-A912-E44629C62A9D}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Cvdm.ErrorHandling.Tests", "Cvdm.ErrorHandling.Tests\Cvdm.ErrorHandling.Tests.fsproj", "{94B6B52B-9676-4E69-8F6F-0EBCA08DCE8D}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Cvdm.ErrorHandling.Tests", "Cvdm.ErrorHandling.Tests\Cvdm.ErrorHandling.Tests.fsproj", "{94B6B52B-9676-4E69-8F6F-0EBCA08DCE8D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{52566895-4E19-4130-9B55-28A4C50E6B6A}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
