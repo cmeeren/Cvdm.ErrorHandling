@@ -22,9 +22,14 @@ module Result =
   let requireEqualTo other err this =
     if this = other then Ok () else Error err
 
-  /// Replaces a unit error value with a custom error value.
+  /// Replaces a unit error value with a custom error value. Safer than setError
+  /// since you're not losing any information.
   let withError error result =
     result |> Result.mapError (fun () -> error)
+
+  /// Replaces an error value with a custom error value.
+  let setError error result =
+    result |> Result.mapError (fun _ -> error)
 
   /// Returns the contained value if Ok, otherwise returns ifError.
   let orElse ifError result =
@@ -85,9 +90,14 @@ module AsyncResult =
     asyncResult |> asyncMap (Result.mapError mapper)
 
   /// Replaces a unit error value of an async-wrapped result with a custom
-  /// error value.
+  /// error value. Safer than setError since you're not losing any information.
   let withError error asyncResult =
     asyncResult |> asyncMap (Result.withError error)
+
+  /// Replaces an error value of an async-wrapped result with a custom error
+  /// value.
+  let setError error asyncResult =
+    asyncResult |> asyncMap (Result.setError error)
 
   /// Extracts the contained value of an async-wrapped result if Ok, otherwise
   /// uses ifError.

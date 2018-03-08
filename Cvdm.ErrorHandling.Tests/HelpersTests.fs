@@ -85,6 +85,33 @@ module Result =
 
 
   [<Fact>]
+  let ``withError does not change an ok value`` () =
+    Property.check <| property {
+      let! value = GenX.auto<string>
+      let! err = GenX.auto<int>
+      test <@ Ok value |> Result.withError err = Ok value @>
+    }
+
+
+  [<Fact>]
+  let ``setError replaces an error value with a custom error value`` () =
+    Property.check <| property {
+      let! errOriginal = GenX.auto<string>
+      let! errNew = GenX.auto<int>
+      test <@ Error errOriginal |> Result.setError errNew = Error errNew @>
+    }
+
+
+  [<Fact>]
+  let ``setError does not change an ok value`` () =
+    Property.check <| property {
+      let! value = GenX.auto<string>
+      let! err = GenX.auto<int>
+      test <@ Ok value |> Result.setError err = Ok value @>
+    }
+
+
+  [<Fact>]
   let ``orElse returns the Ok value if Ok`` () =
     Property.check <| property {
       let! value = GenX.auto<string>
@@ -429,6 +456,51 @@ module AsyncResult =
         |> Async.RunSynchronously
 
       test <@ res = Error err @>
+    }
+
+
+  [<Fact>]
+  let ``withError does not change an ok value`` () =
+    Property.check <| property {
+      let! value = GenX.auto<string>
+      let! err = GenX.auto<int>
+
+      let res =
+        async { return Ok value }
+        |> AsyncResult.withError err
+        |> Async.RunSynchronously
+
+      test <@ res = Ok value @>
+    }
+
+
+  [<Fact>]
+  let ``setError replaces an error value with a custom error value`` () =
+    Property.check <| property {
+      let! errOriginal = GenX.auto<string>
+      let! errNew = GenX.auto<int>
+
+      let res =
+        async { return Error errOriginal }
+        |> AsyncResult.setError errNew
+        |> Async.RunSynchronously
+
+      test <@ res = Error errNew @>
+    }
+
+
+  [<Fact>]
+  let ``setError does not change an ok value`` () =
+    Property.check <| property {
+      let! value = GenX.auto<string>
+      let! err = GenX.auto<int>
+
+      let res =
+        async { return Ok value }
+        |> AsyncResult.setError err
+        |> Async.RunSynchronously
+
+      test <@ res = Ok value @>
     }
 
 
