@@ -3,17 +3,17 @@ Cvdm.ErrorHandling
 
 [![NuGet](https://img.shields.io/nuget/dt/Cvdm.ErrorHandling.svg?style=flat)](https://www.nuget.org/packages/Cvdm.ErrorHandling/) [![Build status](https://ci.appveyor.com/api/projects/status/r4pe0qp93fnjenoc/branch/master?svg=true)](https://ci.appveyor.com/project/cmeeren/cvdm-errorhandling/branch/master)
 
-*`asyncResult` and `result` computation expressions and helper methods for error handling in F#.*
+*`asyncResult` and `result` computation expressions and helper functions for error handling in F#.*
 
 
 
 The `result` computation expression
 ---
 
-The `result` computation expression simplifies synchronous error handling using F#'s `Result<'a,'b>` type. A single computation expression must have a single error type, and helper methods simplify transforming various methods to a `Result` with the needed error type. Here's an example:
+The `result` computation expression simplifies synchronous error handling using F#'s `Result<'a,'b>` type. A single computation expression must have a single error type, and helper functions simplify transforming return values to a `Result` with the needed error type. Here's an example:
 
 ```F#
-// Given the following methods:
+// Given the following functions:
 //   tryGetUser: string -> User option
 //   isPwdValid: string -> User -> bool
 //   authorize: User -> Result<unit, AuthError>
@@ -52,7 +52,7 @@ The `asyncResult` computation expression is more or less identical to the `resul
 `AsyncResult` has more or less the same helper functions as `Result`. Here's the same example as above, with some signatures modified a bit:
 
 ```F#
-// Given the following methods:
+// Given the following functions:
 //   tryGetUser: string -> Async<User option>                 <- this is async now
 //   isPwdValid: string -> User -> bool                       <- still synchronous
 //   authorize: User -> Async<Result<unit, AuthError>>        <- this is async now
@@ -87,7 +87,7 @@ If you have an expression of type `Async<Result<'a,'b>>`, then the compiler norm
 2. it still follows strict rules (as defined above), and
 3. the whole point of this computation expression is to make your life easier when handling asynchronous errors. The alternative is to explicitly wrap all `Async<Result<'a,'b>>` expressions in a wrapper type to make overload resolution work (like Chessie does) which IMHO doesn't really add any meanungful clarity.
 
-The helper methods
+The helper functions
 ---
 
 See [Helpers.fs](https://github.com/cmeeren/Cvdm.ErrorHandling/blob/master/Cvdm.ErrorHandling/Helpers.fs).
