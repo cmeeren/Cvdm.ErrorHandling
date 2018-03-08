@@ -1,7 +1,12 @@
 Changelog
 ===
 
-##### 0.3.0 (2018-03-07)
+##### 0.4.0 (2018-03-08)
+
+* Breaking: Rename `orElse` and `orElseWith` to `defaultValue` and `defaultWith` so the names match the functions with similar signatures in the `Option` module
+* Add `Result.ignoreError` and `AsyncResult.ignoreError`
+
+##### 0.3.0 (2018-03-08)
 
 * Add `Result.requireNone`, `AsyncResult.requireTrue`, `AsyncResult.requireFalse`, `AsyncResult.requireSome`, `AsyncResult.requireNone`
 * Fix package tags
