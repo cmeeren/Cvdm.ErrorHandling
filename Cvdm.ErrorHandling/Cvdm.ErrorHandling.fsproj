@@ -15,7 +15,7 @@
     <Description>AsyncResult and Result computation expressions and helper methods for error handling in F#.</Description>
     <PackageLicenseUrl>https://github.com/cmeeren/Cvdm.ErrorHandling/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/cmeeren/Cvdm.ErrorHandling</PackageProjectUrl>
-    <PackageTags>f#, error handling, computation expression, asyncresult, async, result</PackageTags>
+    <PackageTags>f# "error handling" "computation expression" asyncresult async result</PackageTags>
     <PackageReleaseNotes />
   </PropertyGroup>
 
