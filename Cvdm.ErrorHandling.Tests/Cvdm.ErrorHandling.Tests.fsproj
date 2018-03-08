@@ -12,7 +12,7 @@
     <Compile Include="Helpers.fs" />
     <Compile Include="ResultBuilderTests.fs" />
     <Compile Include="AsyncResultBuilderTests.fs" />
-    <Compile Include="HelperTests.fs" />
+    <Compile Include="HelpersTests.fs" />
   </ItemGroup>
   
   <ItemGroup>
