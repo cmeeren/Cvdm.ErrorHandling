@@ -57,6 +57,11 @@ module Result =
     | Ok x -> x
     | Error _ -> ifErrorThunk ()
 
+  /// Same as defaultValue for a result where the Ok value is unit. The name
+  /// describes better what is actually happening in this case.
+  let ignoreError result =
+    defaultValue () result
+
   /// If the result is Ok and the predicate returns true, executes the function
   /// on the Ok value. Passes through the input value.
   let teeIf predicate f result =
@@ -132,6 +137,11 @@ module AsyncResult =
   /// evaluates ifErrorThunk and uses the result.
   let defaultWith ifErrorThunk asyncResult =
     asyncResult |> asyncMap (Result.defaultWith ifErrorThunk)
+
+  /// Same as defaultValue for a result where the Ok value is unit. The name
+  /// describes better what is actually happening in this case.
+  let ignoreError result =
+    defaultValue () result
 
   /// If the async-wrapped result is Ok and the predicate returns true, executes
   /// the function on the Ok value. Passes through the input value.

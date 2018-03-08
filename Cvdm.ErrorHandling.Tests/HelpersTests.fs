@@ -175,6 +175,16 @@ module Result =
     }
 
 
+  // The compiler check this for us, but we have a test anyway so that
+  // compilation errors from any erroneous changes are actually caught.
+  [<Fact>]
+  let ``ignoreError returns the Ok value if Ok`` () =
+    Property.check <| property {
+      let! result = GenX.auto<Result<unit,string>>
+      test <@ result |> Result.ignoreError = () @>
+    }
+
+
   [<Fact>]
   let ``teeIf runs the function if ok and the predicate returns true`` () =
     Property.check <| property {
@@ -708,6 +718,21 @@ module AsyncResult =
       |> ignore
 
       test <@ not t.Triggered @>
+    }
+
+
+  // The compiler check this for us, but we have a test anyway so that
+  // compilation errors from any erroneous changes are actually caught.
+  [<Fact>]
+  let ``ignoreError always returns unit`` () =
+    Property.check <| property {
+      let! result = GenX.auto<Result<unit,string>>
+      let res =
+        async { return result }
+        |> AsyncResult.ignoreError
+        |> Async.RunSynchronously
+
+      test <@ res = () @>
     }
 
 
