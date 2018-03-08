@@ -45,14 +45,14 @@ module Result =
     result |> Result.mapError (fun _ -> error)
 
   /// Returns the contained value if Ok, otherwise returns ifError.
-  let orElse ifError result =
+  let defaultValue ifError result =
     match result with
     | Ok x -> x
     | Error _ -> ifError
 
   /// Returns the contained value if Ok, otherwise evaluates ifErrorThunk and
   /// returns the result.
-  let orElseWith ifErrorThunk result =
+  let defaultWith ifErrorThunk result =
     match result with
     | Ok x -> x
     | Error _ -> ifErrorThunk ()
@@ -125,13 +125,13 @@ module AsyncResult =
 
   /// Extracts the contained value of an async-wrapped result if Ok, otherwise
   /// uses ifError.
-  let orElse ifError asyncResult =
-    asyncResult |> asyncMap (Result.orElse ifError)
+  let defaultValue ifError asyncResult =
+    asyncResult |> asyncMap (Result.defaultValue ifError)
 
   /// Extracts the contained value of an async-wrapped result if Ok, otherwise
   /// evaluates ifErrorThunk and uses the result.
-  let orElseWith ifErrorThunk asyncResult =
-    asyncResult |> asyncMap (Result.orElseWith ifErrorThunk)
+  let defaultWith ifErrorThunk asyncResult =
+    asyncResult |> asyncMap (Result.defaultWith ifErrorThunk)
 
   /// If the async-wrapped result is Ok and the predicate returns true, executes
   /// the function on the Ok value. Passes through the input value.

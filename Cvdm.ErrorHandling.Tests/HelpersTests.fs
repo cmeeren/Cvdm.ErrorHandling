@@ -129,48 +129,48 @@ module Result =
 
 
   [<Fact>]
-  let ``orElse returns the Ok value if Ok`` () =
+  let ``defaultValue returns the Ok value if Ok`` () =
     Property.check <| property {
       let! value = GenX.auto<string>
       let! otherValue = GenX.auto<string>
-      test <@ Ok value |> Result.orElse otherValue = value @>
+      test <@ Ok value |> Result.defaultValue otherValue = value @>
     }
 
 
   [<Fact>]
-  let ``orElse returns the specified value if Error`` () =
+  let ``defaultValue returns the specified value if Error`` () =
     Property.check <| property {
       let! err = GenX.auto<string>
       let! otherValue = GenX.auto<string>
-      test <@ Error err |> Result.orElse otherValue = otherValue @>
+      test <@ Error err |> Result.defaultValue otherValue = otherValue @>
     }
 
 
   [<Fact>]
-  let ``orElseWith returns the Ok value if Ok`` () =
+  let ``defaultWith returns the Ok value if Ok`` () =
     Property.check <| property {
       let! value = GenX.auto<string>
       let! otherValue = GenX.auto<string>
-      test <@ Ok value |> Result.orElseWith (fun () -> otherValue) = value @>
+      test <@ Ok value |> Result.defaultWith (fun () -> otherValue) = value @>
     }
 
 
   [<Fact>]
-  let ``orElseWith returns the specified value if Error`` () =
+  let ``defaultWith returns the specified value if Error`` () =
     Property.check <| property {
       let! err = GenX.auto<string>
       let! otherValue = GenX.auto<string>
-      test <@ Error err |> Result.orElseWith (fun () -> otherValue) = otherValue @>
+      test <@ Error err |> Result.defaultWith (fun () -> otherValue) = otherValue @>
     }
 
 
   [<Fact>]
-  let ``orElseWith does not evaluate the function if Ok`` () =
+  let ``defaultWith does not evaluate the function if Ok`` () =
     Property.check <| property {
       let t = Trigger()
       let! value = GenX.auto<string>
       let! otherValue = GenX.auto<string>
-      Ok value |> Result.orElseWith (fun () -> t.Trigger(); otherValue) |> ignore
+      Ok value |> Result.defaultWith (fun () -> t.Trigger(); otherValue) |> ignore
       test <@ not t.Triggered @>
     }
 
@@ -636,14 +636,14 @@ module AsyncResult =
 
 
   [<Fact>]
-  let ``orElse returns the Ok value if Ok`` () =
+  let ``defaultValue returns the Ok value if Ok`` () =
     Property.check <| property {
       let! value = GenX.auto<string>
       let! otherValue = GenX.auto<string>
 
       let res =
         async { return Ok value }
-        |> AsyncResult.orElse otherValue
+        |> AsyncResult.defaultValue otherValue
         |> Async.RunSynchronously
 
       test <@ res = value @>
@@ -651,14 +651,14 @@ module AsyncResult =
 
 
   [<Fact>]
-  let ``orElse returns the specified value if Error`` () =
+  let ``defaultValue returns the specified value if Error`` () =
     Property.check <| property {
       let! err = GenX.auto<string>
       let! otherValue = GenX.auto<string>
 
       let res =
         async { return Error err }
-        |> AsyncResult.orElse otherValue
+        |> AsyncResult.defaultValue otherValue
         |> Async.RunSynchronously
 
       test <@ res = otherValue @>
@@ -666,14 +666,14 @@ module AsyncResult =
 
 
   [<Fact>]
-  let ``orElseWith returns the Ok value if Ok`` () =
+  let ``defaultWith returns the Ok value if Ok`` () =
     Property.check <| property {
       let! value = GenX.auto<string>
       let! otherValue = GenX.auto<string>
 
       let res =
         async { return Ok value }
-        |> AsyncResult.orElseWith (fun () -> otherValue)
+        |> AsyncResult.defaultWith (fun () -> otherValue)
         |> Async.RunSynchronously
 
       test <@ res = value @>
@@ -681,14 +681,14 @@ module AsyncResult =
 
 
   [<Fact>]
-  let ``orElseWith returns the specified value if Error`` () =
+  let ``defaultWith returns the specified value if Error`` () =
     Property.check <| property {
       let! err = GenX.auto<string>
       let! otherValue = GenX.auto<string>
 
       let res =
         async { return Error err }
-        |> AsyncResult.orElseWith (fun () -> otherValue)
+        |> AsyncResult.defaultWith (fun () -> otherValue)
         |> Async.RunSynchronously
 
       test <@ res = otherValue @>
@@ -696,14 +696,14 @@ module AsyncResult =
 
 
   [<Fact>]
-  let ``orElseWith does not evaluate the function if Ok`` () =
+  let ``defaultWith does not evaluate the function if Ok`` () =
     Property.check <| property {
       let t = Trigger()
       let! value = GenX.auto<string>
       let! otherValue = GenX.auto<string>
 
       async { return Ok value }
-      |> AsyncResult.orElseWith (fun () -> t.Trigger(); otherValue)
+      |> AsyncResult.defaultWith (fun () -> t.Trigger(); otherValue)
       |> Async.RunSynchronously
       |> ignore
 
