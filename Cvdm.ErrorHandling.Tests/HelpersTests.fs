@@ -58,6 +58,23 @@ module Result =
 
 
   [<Fact>]
+  let ``requireNone returns ok if None`` () =
+    Property.check <| property {
+      let! err = GenX.auto<string>
+      test <@ None |> Result.requireNone err = Ok () @>
+    }
+
+
+  [<Fact>]
+  let ``requireNone returns the specified error value if Some`` () =
+    Property.check <| property {
+      let! value = GenX.auto<int>
+      let! err = GenX.auto<string>
+      test <@ Some value |> Result.requireNone err = Error err @>
+    }
+
+
+  [<Fact>]
   let ``requireEqualTo returns ok if the values are equal`` () =
     Property.check <| property {
       let! value = GenX.auto<string>
@@ -442,6 +459,120 @@ module AsyncResult =
         |> Async.RunSynchronously
 
       test <@ res = Error mapRet @>
+    }
+
+
+  [<Fact>]
+  let ``requireTrue returns ok if true`` () =
+    Property.check <| property {
+      let! err = GenX.auto<string>
+
+      let result =
+        async { return true }
+        |> AsyncResult.requireTrue err
+        |> Async.RunSynchronously
+
+      test <@ result = Ok () @>
+    }
+
+
+  [<Fact>]
+  let ``requireTrue returns the specified error value if false`` () =
+    Property.check <| property {
+      let! err = GenX.auto<string>
+
+      let result =
+        async { return false }
+        |> AsyncResult.requireTrue err
+        |> Async.RunSynchronously
+
+      test <@ result = Error err @>
+    }
+
+
+  [<Fact>]
+  let ``requireFalse returns ok if false`` () =
+    Property.check <| property {
+      let! err = GenX.auto<string>
+
+      let result =
+        async { return false }
+        |> AsyncResult.requireFalse err
+        |> Async.RunSynchronously
+
+      test <@ result = Ok () @>
+    }
+
+
+  [<Fact>]
+  let ``requireFalse returns the specified error value if true`` () =
+    Property.check <| property {
+      let! err = GenX.auto<string>
+
+      let result =
+        async { return true }
+        |> AsyncResult.requireFalse err
+        |> Async.RunSynchronously
+
+      test <@ result = Error err @>
+    }
+
+
+  [<Fact>]
+  let ``requireSome returns the Some value if Some`` () =
+    Property.check <| property {
+      let! value = GenX.auto<int>
+      let! err = GenX.auto<string>
+
+      let result =
+        async { return Some value }
+        |> AsyncResult.requireSome err
+        |> Async.RunSynchronously
+
+      test <@ result = Ok value @>
+    }
+
+
+  [<Fact>]
+  let ``requireSome returns the specified error value if None`` () =
+    Property.check <| property {
+      let! err = GenX.auto<string>
+
+      let result =
+        async { return None }
+        |> AsyncResult.requireSome err
+        |> Async.RunSynchronously
+
+      test <@ result = Error err @>
+    }
+
+
+  [<Fact>]
+  let ``requireNone returns ok if None`` () =
+    Property.check <| property {
+      let! err = GenX.auto<string>
+
+      let result =
+        async { return None }
+        |> AsyncResult.requireNone err
+        |> Async.RunSynchronously
+
+      test <@ result = Ok () @>
+    }
+
+
+  [<Fact>]
+  let ``requireNone returns the specified error value if Some`` () =
+    Property.check <| property {
+      let! value = GenX.auto<int>
+      let! err = GenX.auto<string>
+
+      let result =
+        async { return Some value }
+        |> AsyncResult.requireNone err
+        |> Async.RunSynchronously
+
+      test <@ result = Error err @>
     }
 
 

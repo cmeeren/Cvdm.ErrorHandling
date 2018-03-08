@@ -29,10 +29,10 @@ let login (username: string) (password: string) : Result<AuthToken, LoginError> 
     let! user = username |> tryGetUser |> Result.requireSome InvalidUser
     
     // requireTrue gives the specified error if false
-    do! user |> isPwdValid |> Result.requireTrue InvalidPwd
+    do! user |> isPwdValid password |> Result.requireTrue InvalidPwd
     
     // Error value is wrapped/transformed (Unauthorized has signature AuthError -> LoginError)
-    do! user |> authorize |> Result.mapError AuthError
+    do! user |> authorize |> Result.mapError Unauthorized
 
     return user |> createAuthToken
   }
@@ -53,32 +53,31 @@ The `asyncResult` computation expression is more or less identical to the `resul
 
 ```F#
 // Given the following methods:
-//   tryGetUser: string -> Async<User option>            <- this is async now
-//   isPwdValid: string -> User -> bool                  <- still synchronous
-//   authorize: User -> Async<Result<unit, AuthError>>   <- this is async now
-//   createAuthToken: User -> Result<AuthToken,exn>      <- synchronous, but can now fail
+//   tryGetUser: string -> Async<User option>                 <- this is async now
+//   isPwdValid: string -> User -> bool                       <- still synchronous
+//   authorize: User -> Async<Result<unit, AuthError>>        <- this is async now
+//   createAuthToken: User -> Result<AuthToken, TokenError>   <- still synchronous, but can now fail
 
-// Error type is same as previous example
-type LoginError = InvalidUser | InvalidPwd | Unauthorized of AuthError
+type LoginError = InvalidUser | InvalidPwd | Unauthorized of AuthError | TokenErr of TokenError
 
 let login (username: string) (password: string) : Async<Result<AuthToken, LoginError>> =
   asyncResult {
     // tryGetUser is async, so we use the function from the AsyncResult module
     let! user = username |> tryGetUser |> AsyncResult.requireSome InvalidUser
-    
-    // isPwdValid returns Result, so we still use the function from the `Result` module
-    do! user |> isPwdValid |> Result.requireTrue InvalidPwd
-    
-    // authorize is async, so again we use AsyncResult instead of Result
-    do! user |> authorize |> AsyncResult.mapError AuthError
 
-    // createAuthToken evaluates to a Result, but using return! it's automatically
-    // wrapped in Async to be compatible with the computation expression
-    return! user |> createAuthToken
+    // isPwdValid returns Result, so we still use the function from the `Result` module
+    do! user |> isPwdValid password |> Result.requireTrue InvalidPwd
+
+    // authorize is async, so again we use AsyncResult instead of Result
+    do! user |> authorize |> AsyncResult.mapError Unauthorized
+
+    // createAuthToken evaluates to a Result, but using return! (and other bang keywords)
+    // it's automatically wrapped in Async to be compatible with the computation expression
+    return! user |> createAuthToken |> Result.mapError TokenErr
   }
 ```
 
-##### A note on overload resolution
+#### A note on overload resolution
 
 (It all "just works" as you'd want; this is for the curious.)
 

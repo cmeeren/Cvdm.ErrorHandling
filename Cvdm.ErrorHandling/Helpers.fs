@@ -2,6 +2,13 @@
 module Cvdm.ErrorHandling.Helpers
 
 
+let private asyncMap f asnc =
+  async {
+    let! x = asnc
+    return f x
+  }
+
+
 module Result =
 
   /// Returns the specified error if the value is false.
@@ -17,6 +24,12 @@ module Result =
     match option with
     | Some x -> Ok x
     | None -> Error error
+
+  /// Converts an Option to a Result, using the given error if Some.
+  let requireNone error option =
+    match option with
+    | Some _ -> Error error
+    | None -> Ok ()
 
   /// Returns Ok if the two values are equal, or the specified error if not.
   let requireEqualTo other err this =
@@ -75,11 +88,6 @@ module Result =
 
 module AsyncResult =
 
-  let private asyncMap f asnc =
-    async {
-      let! x = asnc
-      return f x
-    }
 
   /// Maps the Ok value of an async-wrapped result.
   let map mapper asyncResult =
@@ -88,6 +96,22 @@ module AsyncResult =
   /// Maps the Error value of an async-wrapped result.
   let mapError mapper asyncResult =
     asyncResult |> asyncMap (Result.mapError mapper)
+
+  /// Returns the specified error if the async-wrapped value is false.
+  let requireTrue error value =
+    value |> asyncMap (Result.requireTrue error)
+
+  /// Returns the specified error if the async-wrapped value is true.
+  let requireFalse error value =
+    value |> asyncMap (Result.requireFalse error)
+
+  /// Converts an async-wrapped Option to a Result, using the given error if None.
+  let requireSome error option =
+    option |> asyncMap (Result.requireSome error)
+
+  /// Converts an Option to a Result, using the given error if None.
+  let requireNone error option =
+    option |> asyncMap (Result.requireNone error)
 
   /// Replaces a unit error value of an async-wrapped result with a custom
   /// error value. Safer than setError since you're not losing any information.

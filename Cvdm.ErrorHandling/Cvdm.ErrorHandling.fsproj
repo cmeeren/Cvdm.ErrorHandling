@@ -8,13 +8,13 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <Version>0.2.0</Version>
+    <Version>0.3.0</Version>
     <Authors>Christer van der Meeren</Authors>
     <Description>AsyncResult and Result computation expressions and helper methods for error handling in F#.</Description>
     <PackageLicenseUrl>https://github.com/cmeeren/Cvdm.ErrorHandling/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/cmeeren/Cvdm.ErrorHandling</PackageProjectUrl>
-    <PackageTags>f# "error handling" "computation expression" asyncresult async result</PackageTags>
-    <PackageReleaseNotes>Add setError</PackageReleaseNotes>
+    <PackageTags>f# error-handling computation-expression asyncresult async result</PackageTags>
+    <PackageReleaseNotes>Add more helper functions</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup>
