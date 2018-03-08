@@ -77,7 +77,7 @@ let login (username: string) (password: string) : Async<Result<AuthToken, LoginE
   }
 ```
 
-#### A note on overload resolution
+### A note on overload resolution
 
 (It all "just works" as you'd want; this is for the curious.)
 
