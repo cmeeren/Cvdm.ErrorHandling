@@ -10,7 +10,7 @@ Cvdm.ErrorHandling
 The `result` computation expression
 ---
 
-The `result` computation expression simplifies synchronous error handling using F#'s `Result<'a,'b>` type. A single computation expression must have a single error type, and helper functions simplify transforming return values to a `Result` with the needed error type. Here's an example:
+The `result` computation expression simplifies synchronous error handling using F#'s `Result<_,_>` type. A single computation expression must have a single error type, and helper functions simplify transforming return values to a `Result` with the needed error type. Here's an example:
 
 ```F#
 // Given the following functions:
@@ -45,9 +45,9 @@ The expression above will stop at and return the first error.
 The `asyncResult` computation expression
 ---
 
-The `asyncResult` computation expression is more or less identical to the `result` expression except it's centered around `Async<Result<'a,'b>> `, with overloads supporting `Result<'a,'b>` (which is wrapped in `Async`) and `Async<'a>` (which is wrapped using `Result.Ok`). In other words, on the right side of `let!`, `do!` etc. you can have `Async<'a>`, `Async<Result<'a, 'b>` or `Async<'a>`.
+The `asyncResult` computation expression is more or less identical to the `result` expression except it's centered around `Async<Result<_,_>> `, with overloads supporting `Result<_,_>` (which is wrapped in `Async`) and `Async<_>` (whose value is wrapped using `Result.Ok`). In other words, on the right side of `let!`, `do!` etc. you can have `Async<_>`, `Async<Result<_,_>` or `Async<_>`.
 
-`asyncResult` is intended to be almost a drop-in replacement of `result`. If you have a `result` expression and you need to unwrap `Async` values, just change to `asyncResult`. (The consumers of the changed expression will of course now need to change since it's `Async<Result<'a,'b>>` instead of `Result<'a,'b>`, but the contents of the expression itself should not need to change just from this switch.)
+`asyncResult` is intended to be almost a drop-in replacement of `result`. If you have a `result` expression and you need to unwrap `Async` values inside it, just change it to `asyncResult`. (The consumers of the changed expression will of course now need to change since it's `Async<Result<_,_>>` instead of `Result<_,_>`, but the contents of the expression itself should not need to change just from this switch.)
 
 `AsyncResult` has more or less the same helper functions as `Result`. Here's the same example as above, with some signatures modified a bit:
 
@@ -77,15 +77,43 @@ let login (username: string) (password: string) : Async<Result<AuthToken, LoginE
   }
 ```
 
-### A note on overload resolution
+### A note on type inference
+
+Due to limitations in the F# type inference system when overloads are involved (see [Microsoft/visualfsharp#4472](https://github.com/Microsoft/visualfsharp/issues/4472)), you might sometimes have to add explicit type annotations. For example, the following expression
+
+```F#
+asyncResult {
+  let! str = asyncResult { return "" }
+  return str.Length
+         ^^^^^^^^^^ <- error FS0072
+}
+```
+
+will give you an error on `str.Length` saying
+
+```
+error FS0072: Lookup on object of indeterminate type based on information prior to this program point. A type annotation may be needed prior to this program point to constrain the type of the object. This may allow the lookup to be resolved.
+```
+
+The solution is to annotate `str`:
+
+```F#
+let! (str: string) = asyncResult { return "" }
+```
+
+Things seem to work fine when the right-hand side is `Async<_>` or `Result<_,_>`.
+
+### A technical note on overload resolution
 
 (It all "just works" as you'd want; this is for the curious.)
 
-If you have an expression of type `Async<Result<'a,'b>>`, then the compiler normally doesn't know how to choose between the overloads taking `Async<Result<'a,'b>>` and `Async<'a>` since both are compatible. I have solved this by having the `Async<'a>` members as extension methods. The compiler will then give these lower priority. I consider this bit of "magic" completely acceptable in this situation since
+If you have an expression of type `Async<Result<_,_>>`, then the compiler normally doesn't know how to choose between the overloads taking `Async<Result<_,_>>` and `Async<_>` since both are compatible. I have solved this by having the `Async<_>` members as extension methods. The compiler will then give these lower priority. I consider this bit of "magic" completely acceptable in this situation since
 
 1. the resulting behavior is intuitive and exactly what you want,
 2. it still follows strict rules (as defined above), and
-3. the whole point of this computation expression is to make your life easier when handling asynchronous errors. The alternative is to explicitly wrap all `Async<Result<'a,'b>>` expressions in a wrapper type to make overload resolution work (like Chessie does) which IMHO doesn't really add any meanungful clarity.
+3. the whole point of this computation expression is to make your life easier when handling asynchronous errors. The alternative is to explicitly wrap all `Async<Result<_,_>>` expressions in a wrapper type to make overload resolution work (like Chessie does) which IMHO doesn't really add any meaningful clarity.
+
+The only caveat is the type inference limitations mentioned above.
 
 The helper functions
 ---
