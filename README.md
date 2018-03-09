@@ -103,15 +103,13 @@ Things seem to work fine when the right-hand side is `Async<_>` or `Result<_,_>`
 
 ### A technical note on overload resolution
 
-(It all "just works" as you'd want; this is for the curious.)
+(Aside from the type inference limiation mentioned above, it all "just works" as you'd want; this is for the curious.)
 
 If you have an expression of type `Async<Result<_,_>>`, then the compiler normally doesn't know how to choose between the overloads taking `Async<Result<_,_>>` and `Async<_>` since both are compatible. I have solved this by having the `Async<_>` members as extension methods. The compiler will then give these lower priority. I consider this bit of "magic" completely acceptable in this situation since
 
 1. the resulting behavior is intuitive and exactly what you want,
 2. it still follows strict rules (as defined above), and
 3. the whole point of this computation expression is to make your life easier when handling asynchronous errors. The alternative is to explicitly wrap all `Async<Result<_,_>>` expressions in a wrapper type to make overload resolution work (like Chessie does) which IMHO doesn't really add any meaningful clarity.
-
-The only caveat is the type inference limitations mentioned above.
 
 The helper functions
 ---
