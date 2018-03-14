@@ -5,8 +5,6 @@ Cvdm.ErrorHandling
 
 *`asyncResult` and `result` computation expressions and helper functions for error handling in F#.*
 
-* NOTE: this library is tagged with the `AutoOpen` attribute. Referencing this library will automatically open the `Cvdm.ErrorHandling` namespace. This means you will have access to this library's computation expressions and helper methods in every file without any explicit `open` statements.
-
 The `result` computation expression
 ---
 
@@ -76,6 +74,12 @@ let login (username: string) (password: string) : Async<Result<AuthToken, LoginE
     return! user |> createAuthToken |> Result.mapError TokenErr
   }
 ```
+
+### A note on namespace imports
+
+This library is tagged with the `AutoOpen` attribute. Referencing this library will automatically open the `Cvdm.ErrorHandling` namespace. This means you will have access to this library's computation expressions and helper methods in every file without any explicit `open` statements.
+
+Should you have a value or function in your code with the same name as a value or function in this library (e.g. `result`/`Result.defaultValue`), your definition will take precedence. You may override this behaviour in a file and use the library's definition by explicitly `open`ing `Cvdm.ErrorHandling` again.
 
 ### A note on type inference
 
