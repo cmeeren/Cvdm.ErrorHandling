@@ -4,8 +4,6 @@ open System
 open Xunit
 open Hedgehog
 open Swensen.Unquote
-open Cvdm.ErrorHandling
-
 
 [<Fact>]
 let ``return wraps value in Ok`` () =

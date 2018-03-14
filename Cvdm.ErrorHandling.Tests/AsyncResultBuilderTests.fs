@@ -4,7 +4,6 @@ open System
 open Xunit
 open Hedgehog
 open Swensen.Unquote
-open Cvdm.ErrorHandling
 
 /// Helper type for simulating side effects.
 type Trigger() =

@@ -24,8 +24,12 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
 </ItemGroup>
   
+  <PropertyGroup>
+    <RestoreSources>../Cvdm.ErrorHandling/bin/Debug;https://api.nuget.org/v3/index.json;$(RestoreSources)</RestoreSources>
+  </PropertyGroup>
+
   <ItemGroup>
-    <ProjectReference Include="..\Cvdm.ErrorHandling\Cvdm.ErrorHandling.fsproj" />
+    <PackageReference Include="Cvdm.ErrorHandling" Version="0.5.0" />
   </ItemGroup>
 
 </Project>

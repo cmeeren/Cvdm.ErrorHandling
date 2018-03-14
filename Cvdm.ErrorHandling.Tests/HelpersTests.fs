@@ -3,7 +3,6 @@
 open Xunit
 open Hedgehog
 open Swensen.Unquote
-open Cvdm.ErrorHandling
 
 module Result =
 
