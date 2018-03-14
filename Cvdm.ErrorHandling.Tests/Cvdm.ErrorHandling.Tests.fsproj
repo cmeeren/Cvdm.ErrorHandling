@@ -13,6 +13,7 @@
     <Compile Include="ResultBuilderTests.fs" />
     <Compile Include="AsyncResultBuilderTests.fs" />
     <Compile Include="HelpersTests.fs" />
+    <Compile Include="NamespaceOverride.fs" />
   </ItemGroup>
   
   <ItemGroup>
