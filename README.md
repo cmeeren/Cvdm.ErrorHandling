@@ -5,7 +5,7 @@ Cvdm.ErrorHandling
 
 *`asyncResult` and `result` computation expressions and helper functions for error handling in F#.*
 
-
+* NOTE: this library is tagged with the `AutoOpen` attribute. Referencing this library will automatically open the `Cvdm.ErrorHandling` namespace. This means you will have access to this library's computation expressions and helper methods in every file without any explicit `open` statements.
 
 The `result` computation expression
 ---
