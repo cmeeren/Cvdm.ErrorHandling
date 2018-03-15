@@ -86,6 +86,3 @@ type AsyncResultBuilder() =
     this.Using(s.GetEnumerator (), fun enum ->
       this.While(enum.MoveNext,
         this.Delay(fun () -> body enum.Current)))
-
-
-let asyncResult = AsyncResultBuilder()

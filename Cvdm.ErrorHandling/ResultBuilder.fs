@@ -48,5 +48,3 @@ type ResultBuilder() =
       this.While(enum.MoveNext,
         this.Delay(fun () -> body enum.Current)))
 
-
-let result = ResultBuilder()
