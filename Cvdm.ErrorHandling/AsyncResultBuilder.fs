@@ -83,3 +83,7 @@ module Extensions =
 
     member this.Combine (asnc: Async<'a>, binder: 'a -> Async<Result<'b, 'c>>) : Async<Result<'b, 'c>> =
       this.Bind(asnc, binder)
+
+
+/// A computation expression to build an Async<Result<'ok, 'error>> value
+let asyncResult = AsyncResultBuilder()

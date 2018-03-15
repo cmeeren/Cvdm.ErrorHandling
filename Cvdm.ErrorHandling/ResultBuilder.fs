@@ -48,3 +48,6 @@ type ResultBuilder() =
       this.While(enum.MoveNext,
         this.Delay(fun () -> body enum.Current)))
 
+
+/// A computation expression to build a Result<'ok, 'error> value
+let result = ResultBuilder()

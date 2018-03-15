@@ -1,11 +1,6 @@
 ﻿[<AutoOpen>]
 module Cvdm.ErrorHandling.Helpers
 
-/// A computation expression to build a Result<'ok, 'error> value
-let result = ResultBuilder()
-
-/// A computation expression to build an Async<Result<'ok, 'error>> value
-let asyncResult = AsyncResultBuilder()
 
 let private asyncMap f asnc =
   async {
