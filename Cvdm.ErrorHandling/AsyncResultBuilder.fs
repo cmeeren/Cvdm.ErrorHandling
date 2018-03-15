@@ -83,6 +83,3 @@ module Extensions =
 
     member this.Combine (asnc: Async<'a>, binder: 'a -> Async<Result<'b, 'c>>) : Async<Result<'b, 'c>> =
       this.Bind(asnc, binder)
-
-
-let asyncResult = AsyncResultBuilder()

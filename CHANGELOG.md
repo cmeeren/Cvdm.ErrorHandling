@@ -1,6 +1,10 @@
 Changelog
 ===
 
+##### 0.5.0 (2018-03-14)
+
+* Breaking: Added assembly-level AutoOpen attribute. Importing the library will automatically import the helper methods as well as the builder instances
+
 ##### 0.4.0 (2018-03-08)
 
 * Breaking: Rename `orElse` and `orElseWith` to `defaultValue` and `defaultWith` so the names match the functions with similar signatures in the `Option` module
