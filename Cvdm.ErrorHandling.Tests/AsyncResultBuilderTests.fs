@@ -5,12 +5,6 @@ open Xunit
 open Hedgehog
 open Swensen.Unquote
 
-/// Helper type for simulating side effects.
-type Trigger() =
-  let mutable isTriggered = false
-  member __.Trigger () = isTriggered <- true
-  member __.Triggered = isTriggered
-
 
 [<Fact>]
 let ``return wraps value in Ok`` () =
@@ -19,7 +13,7 @@ let ``return wraps value in Ok`` () =
 
     let result =
       asyncResult { return x }
-      |> Async.RunSynchronously
+      |> AsyncResult.toAsync |> Async.RunSynchronously
 
     test <@ result = Ok x @>
   }
@@ -29,11 +23,11 @@ let ``return wraps value in Ok`` () =
 let ``return! returns async result value unmodified`` () =
   Property.check <| property {
     let! res = GenX.auto<Result<string, int>>
-    let asyncRes = async { return res }
+    let asyncRes = async { return res } |> AR
 
     let result =
       asyncResult { return! asyncRes }
-      |> Async.RunSynchronously
+      |> AsyncResult.toAsync |> Async.RunSynchronously
 
     test <@ result = res @>
   }
@@ -45,7 +39,7 @@ let ``return! returns result value wrapped in async`` () =
 
     let result =
       asyncResult { return! res }
-      |> Async.RunSynchronously
+      |> AsyncResult.toAsync |> Async.RunSynchronously
 
     test <@ result = res @>
   }
@@ -58,7 +52,7 @@ let ``return! returns async wrapped in Ok`` () =
 
     let result =
       asyncResult { return! asnc }
-      |> Async.RunSynchronously
+      |> AsyncResult.toAsync |> Async.RunSynchronously
 
     test <@ result = Ok res @>
   }
@@ -73,7 +67,7 @@ let ``continues when do ok result`` () =
       asyncResult {
         do! Ok ()
         return x
-      } |> Async.RunSynchronously
+      } |> AsyncResult.toAsync |> Async.RunSynchronously
 
     test <@ result = Ok x @>
   }
@@ -86,9 +80,9 @@ let ``continues when do async ok result`` () =
 
     let result =
       asyncResult {
-        do! async { return Ok () }
+        do! async { return Ok () } |> AR
         return x
-      } |> Async.RunSynchronously
+      } |> AsyncResult.toAsync |> Async.RunSynchronously
 
     test <@ result = Ok x @>
   }
@@ -103,7 +97,7 @@ let ``continues when do async simple value`` () =
       asyncResult {
         do! async { return () }
         return x
-      } |> Async.RunSynchronously
+      } |> AsyncResult.toAsync |> Async.RunSynchronously
 
     test <@ result = Ok x @>
   }
@@ -118,7 +112,7 @@ let ``continues when let ok result`` () =
       asyncResult {
         let! y = Ok x
         return y
-      } |> Async.RunSynchronously
+      } |> AsyncResult.toAsync |> Async.RunSynchronously
 
     test <@ result = Ok x @>
   }
@@ -131,9 +125,9 @@ let ``continues when let async ok result`` () =
 
     let result =
       asyncResult {
-        let! y = async { return Ok x }
+        let! y = async { return Ok x } |> AR
         return y
-      } |> Async.RunSynchronously
+      } |> AsyncResult.toAsync |> Async.RunSynchronously
 
     test <@ result = Ok x @>
   }
@@ -148,7 +142,7 @@ let ``continues when let async simple value`` () =
       asyncResult {
         let! y = async { return x }
         return y
-      } |> Async.RunSynchronously
+      } |> AsyncResult.toAsync |> Async.RunSynchronously
 
     test <@ result = Ok x @>
   }
@@ -164,7 +158,7 @@ let ``stops and returns error when do error result`` () =
       asyncResult {
         do! Error err
         t.Trigger()
-      } |> Async.RunSynchronously
+      } |> AsyncResult.toAsync |> Async.RunSynchronously
 
     test <@ result = Error err @>
     test <@ not t.Triggered @>
@@ -178,9 +172,9 @@ let ``stops and returns error when do async error result`` () =
 
     let result =
       asyncResult {
-        do! async { return Error err }
+        do! async { return Error err } |> AR
         t.Trigger()
-      } |> Async.RunSynchronously
+      } |> AsyncResult.toAsync |> Async.RunSynchronously
 
     test <@ result = Error err @>
     test <@ not t.Triggered @>
@@ -198,7 +192,7 @@ let ``stops and returns error when let error result`` () =
         let! x = Error err
         t.Trigger()
         return x
-      } |> Async.RunSynchronously
+      } |> AsyncResult.toAsync |> Async.RunSynchronously
 
     test <@ result = Error err @>
     test <@ not t.Triggered @>
@@ -213,13 +207,34 @@ let ``stops and returns error when let async error result`` () =
 
     let result =
       asyncResult {
-        let! x = async { return Error err }
+        let! x = async { return Error err } |> AR
         t.Trigger()
         return x
-      } |> Async.RunSynchronously
+      } |> AsyncResult.toAsync |> Async.RunSynchronously
 
     test <@ result = Error err @>
     test <@ not t.Triggered @>
+  }
+
+
+let ``let! does not need type annotations when AsyncResult`` () =
+  asyncResult {
+    let! x = async { return Ok "" } |> AR
+    return x.Length
+  }
+
+
+let ``let! does not need type annotations when async`` () =
+  asyncResult {
+    let! x = async { return "" }
+    return x.Length
+  }
+
+
+let ``let! does not need type annotations when result`` () =
+  asyncResult {
+    let! x = Ok ""
+    return x.Length
   }
 
 
@@ -232,7 +247,7 @@ let ``unwrapping and wrapping result gives original value`` () =
       asyncResult {
         let! y = res
         return y
-      } |> Async.RunSynchronously
+      } |> AsyncResult.toAsync |> Async.RunSynchronously
 
     test <@ result = res @>
   }
@@ -242,13 +257,13 @@ let ``unwrapping and wrapping result gives original value`` () =
 let ``unwrapping and wrapping async result gives original value`` () =
   Property.check <| property {
     let! res = GenX.auto<Result<string, int>>
-    let asyncRes = async { return res }
+    let asyncRes = async { return res } |> AR
 
     let result =
       asyncResult {
         let! y = asyncRes
         return y
-      } |> Async.RunSynchronously
+      } |> AsyncResult.toAsync |> Async.RunSynchronously
 
     test <@ result = res @>
   }
@@ -263,7 +278,7 @@ let ``wrapping and unwrapping gives original value`` () =
       asyncResult {
         let! y = asyncResult { return x }
         return y
-      } |> Async.RunSynchronously
+      } |> AsyncResult.toAsync |> Async.RunSynchronously
 
     test <@ result = Ok x @>
   }
@@ -283,7 +298,7 @@ let ``child workflow gives same result as inlined when initial wrapped value is 
         let! x = originalWrapped
         let! y = f x
         return! g y
-      } |> Async.RunSynchronously
+      } |> AsyncResult.toAsync |> Async.RunSynchronously
 
     let result2 =
       asyncResult {
@@ -292,7 +307,7 @@ let ``child workflow gives same result as inlined when initial wrapped value is 
           return! f x
         }
         return! g y
-      } |> Async.RunSynchronously
+      } |> AsyncResult.toAsync |> Async.RunSynchronously
 
     test <@ result1 = result2 @>
   }
@@ -312,7 +327,7 @@ let ``child workflow gives same result as inlined when initial wrapped value is 
         let! x = originalWrappedAsync
         let! y = f x
         return! g y
-      } |> Async.RunSynchronously
+      } |> AsyncResult.toAsync |> Async.RunSynchronously
 
     let result2 =
       asyncResult {
@@ -321,7 +336,7 @@ let ``child workflow gives same result as inlined when initial wrapped value is 
           return! f x
         }
         return! g y
-      } |> Async.RunSynchronously
+      } |> AsyncResult.toAsync |> Async.RunSynchronously
 
     test <@ result1 = result2 @>
   }
@@ -330,7 +345,7 @@ let ``child workflow gives same result as inlined when initial wrapped value is 
 [<Fact>]
 let ``empty expression returns async-wrapped Ok ()`` () =
   Property.check <| property {
-    let result = asyncResult { () } |> Async.RunSynchronously
+    let result = asyncResult { () } |> AsyncResult.toAsync |> Async.RunSynchronously
     test <@ result = Ok () @>
   }
 
@@ -345,7 +360,7 @@ let ``behavior of simple if when true`` () =
       asyncResult {
         if true then tIf.Trigger()
         t.Trigger()
-      } |> Async.RunSynchronously
+      } |> AsyncResult.toAsync |> Async.RunSynchronously
 
     test <@ result = Ok () @>
     test <@ tIf.Triggered @>
@@ -363,7 +378,7 @@ let ``behavior of simple if when false`` () =
       asyncResult {
         if false then tIf.Trigger()
         t.Trigger()
-      } |> Async.RunSynchronously
+      } |> AsyncResult.toAsync |> Async.RunSynchronously
 
     test <@ result = Ok () @>
     test <@ not tIf.Triggered @>
@@ -383,7 +398,7 @@ let ``behavior of if with async-wrapped simple value`` () =
           do! async { () }
           tIf.Trigger()
         t.Trigger()
-      } |> Async.RunSynchronously
+      } |> AsyncResult.toAsync |> Async.RunSynchronously
 
     test <@ result = Ok () @>
     test <@ tIf.Triggered @>
@@ -403,7 +418,7 @@ let ``behavior of if with ok value`` () =
           do! Ok ()
           tIf.Trigger()
         t.Trigger()
-      } |> Async.RunSynchronously
+      } |> AsyncResult.toAsync |> Async.RunSynchronously
 
     test <@ result = Ok () @>
     test <@ tIf.Triggered @>
@@ -420,10 +435,10 @@ let ``behavior of if with async-wrapped ok value`` () =
     let result =
       asyncResult {
         if true then
-          do! async { return Ok () }
+          do! async { return Ok () } |> AR
           tIf.Trigger()
         t.Trigger()
-      } |> Async.RunSynchronously
+      } |> AsyncResult.toAsync |> Async.RunSynchronously
 
     test <@ result = Ok () @>
     test <@ tIf.Triggered @>
@@ -445,7 +460,7 @@ let ``behavior of if with error value`` () =
           do! Error err
           tIf.Trigger()
         t.Trigger()
-      } |> Async.RunSynchronously
+      } |> AsyncResult.toAsync |> Async.RunSynchronously
 
     test <@ result = Error err @>
     test <@ not tIf.Triggered @>
@@ -463,10 +478,10 @@ let ``behavior of if with async-wrapped error value`` () =
     let result =
       asyncResult {
         if true then
-          do! async { return Error err }
+          do! async { return Error err } |> AR
           tIf.Trigger()
         t.Trigger()
-      } |> Async.RunSynchronously
+      } |> AsyncResult.toAsync |> Async.RunSynchronously
 
     test <@ result = Error err @>
     test <@ not tIf.Triggered @>
@@ -485,7 +500,7 @@ let ``behavior of simple if-else when true`` () =
       asyncResult {
         if true then tIf.Trigger() else tElse.Trigger()
         t.Trigger()
-      } |> Async.RunSynchronously
+      } |> AsyncResult.toAsync |> Async.RunSynchronously
 
     test <@ result = Ok () @>
     test <@ tIf.Triggered @>
@@ -504,7 +519,7 @@ let ``behavior of simple if-else when false`` () =
       asyncResult {
         if false then tIf.Trigger() else tElse.Trigger()
         t.Trigger()
-      } |> Async.RunSynchronously
+      } |> AsyncResult.toAsync |> Async.RunSynchronously
 
     test <@ result = Ok () @>
     test <@ not tIf.Triggered @>
@@ -527,7 +542,7 @@ let ``behavior of if-else with async-wrapped simple value`` () =
           tIf.Trigger()
         else tElse.Trigger()
         t.Trigger()
-      } |> Async.RunSynchronously
+      } |> AsyncResult.toAsync |> Async.RunSynchronously
 
     test <@ result = Ok () @>
     test <@ tIf.Triggered @>
@@ -550,7 +565,7 @@ let ``behavior of if-else with ok value`` () =
           tIf.Trigger()
         else tElse.Trigger()
         t.Trigger()
-      } |> Async.RunSynchronously
+      } |> AsyncResult.toAsync |> Async.RunSynchronously
 
     test <@ result = Ok () @>
     test <@ tIf.Triggered @>
@@ -569,11 +584,11 @@ let ``behavior of if-else with async-wrapped ok value`` () =
     let result =
       asyncResult {
         if true then
-          do! async { return Ok () }
+          do! async { return Ok () } |> AR
           tIf.Trigger()
         else tElse.Trigger()
         t.Trigger()
-      } |> Async.RunSynchronously
+      } |> AsyncResult.toAsync |> Async.RunSynchronously
 
     test <@ result = Ok () @>
     test <@ tIf.Triggered @>
@@ -597,7 +612,7 @@ let ``behavior of if-else with error value`` () =
           tIf.Trigger()
         else tElse.Trigger()
         t.Trigger()
-      } |> Async.RunSynchronously
+      } |> AsyncResult.toAsync |> Async.RunSynchronously
 
     test <@ result = Error err @>
     test <@ not tIf.Triggered @>
@@ -617,11 +632,11 @@ let ``behavior of if-else with async-wrapped error value`` () =
     let result =
       asyncResult {
         if true then
-          do! async { return Error err }
+          do! async { return Error err } |> AR
           tIf.Trigger()
         else tElse.Trigger()
         t.Trigger()
-      } |> Async.RunSynchronously
+      } |> AsyncResult.toAsync |> Async.RunSynchronously
 
     test <@ result = Error err @>
     test <@ not tIf.Triggered @>
@@ -642,7 +657,7 @@ let ``behavior of simple for`` () =
       asyncResult {
         for t in ts do
           t.Trigger()
-      } |> Async.RunSynchronously
+      } |> AsyncResult.toAsync |> Async.RunSynchronously
 
     test <@ result = Ok () @>
     test <@ ts |> List.forall (fun t -> t.Triggered) @>
@@ -664,7 +679,7 @@ let ``behavior of for when some items fail, using result`` () =
           t1.Trigger()
           do! res
           t2.Trigger()
-      } |> Async.RunSynchronously
+      } |> AsyncResult.toAsync |> Async.RunSynchronously
 
     let (t1a, _, t1b) = ts.[0]
     let (t2a, _, t2b) = ts.[1]
@@ -693,9 +708,9 @@ let ``behavior of for when some items fail, using async-wrapped result`` () =
       asyncResult {
         for t1, res, t2 in ts do
           t1.Trigger()
-          do! async { return res }
+          do! async { return res } |> AR
           t2.Trigger()
-      } |> Async.RunSynchronously
+      } |> AsyncResult.toAsync |> Async.RunSynchronously
 
     let (t1a, _, t1b) = ts.[0]
     let (t2a, _, t2b) = ts.[1]
@@ -721,7 +736,7 @@ let ``behavior of simple while`` () =
       asyncResult {
         while enum.MoveNext () do
           enum.Current.Trigger()
-      } |> Async.RunSynchronously
+      } |> AsyncResult.toAsync |> Async.RunSynchronously
 
     test <@ result = Ok () @>
     test <@ ts |> List.forall (fun t -> t.Triggered) @>
@@ -745,7 +760,7 @@ let ``behavior of while when some items fail, using result`` () =
           t1.Trigger()
           do! res
           t2.Trigger()
-      } |> Async.RunSynchronously
+      } |> AsyncResult.toAsync |> Async.RunSynchronously
 
     let (t1a, _, t1b) = ts.[0]
     let (t2a, _, t2b) = ts.[1]
@@ -776,9 +791,9 @@ let ``behavior of while when some items fail, using async-wrapped result`` () =
         while enum.MoveNext () do
           let t1, res, t2 = enum.Current
           t1.Trigger()
-          do! async { return res }
+          do! async { return res } |> AR
           t2.Trigger()
-      } |> Async.RunSynchronously
+      } |> AsyncResult.toAsync |> Async.RunSynchronously
 
     let (t1a, _, t1b) = ts.[0]
     let (t2a, _, t2b) = ts.[1]
@@ -807,7 +822,7 @@ let ``behavior of try-with-finally when not thrown`` () =
           try tTry.Trigger()
           with _ -> tCatch.Trigger()
         finally tFinally.Trigger()
-      } |> Async.RunSynchronously
+      } |> AsyncResult.toAsync |> Async.RunSynchronously
 
     test <@ result = Ok () @>
     test <@ tTry.Triggered @>
@@ -831,7 +846,7 @@ let ``behavior of try-with-finally when thrown`` () =
             tTry.Trigger()
           with _ -> tCatch.Trigger()
         finally tFinally.Trigger()
-      } |> Async.RunSynchronously
+      } |> AsyncResult.toAsync |> Async.RunSynchronously
 
     test <@ result = Ok () @>
     test <@ not tTry.Triggered @>
@@ -850,7 +865,7 @@ let ``simple use disposes`` () =
       asyncResult {
         use _d = disp
         ()
-      } |> Async.RunSynchronously
+      } |> AsyncResult.toAsync |> Async.RunSynchronously
 
     test <@ result = Ok () @>
     test <@ tDisp.Triggered @>
@@ -867,7 +882,7 @@ let ``simple use disposes when doing async`` () =
       asyncResult {
         use _d = disp
         do! async { () }
-      } |> Async.RunSynchronously
+      } |> AsyncResult.toAsync |> Async.RunSynchronously
 
     test <@ result = Ok () @>
     test <@ tDisp.Triggered @>
@@ -884,7 +899,7 @@ let ``simple use disposes when result is ok`` () =
       asyncResult {
         use _d = disp
         do! Ok ()
-      } |> Async.RunSynchronously
+      } |> AsyncResult.toAsync |> Async.RunSynchronously
 
     test <@ result = Ok () @>
     test <@ tDisp.Triggered @>
@@ -900,8 +915,8 @@ let ``simple use disposes when result is async-wrapped ok`` () =
     let result =
       asyncResult {
         use _d = disp
-        do! async { return Ok () }
-      } |> Async.RunSynchronously
+        do! async { return Ok () } |> AR
+      } |> AsyncResult.toAsync |> Async.RunSynchronously
 
     test <@ result = Ok () @>
     test <@ tDisp.Triggered @>
@@ -919,7 +934,7 @@ let ``simple use disposes when result is error`` () =
       asyncResult {
         use _d = disp
         do! Error err
-      } |> Async.RunSynchronously
+      } |> AsyncResult.toAsync |> Async.RunSynchronously
 
     test <@ result = Error err @>
     test <@ tDisp.Triggered @>
@@ -936,8 +951,8 @@ let ``simple use disposes when result is async-wrapped error`` () =
     let result =
       asyncResult {
         use _d = disp
-        do! async { return Error err }
-      } |> Async.RunSynchronously
+        do! async { return Error err } |> AR
+      } |> AsyncResult.toAsync |> Async.RunSynchronously
 
     test <@ result = Error err @>
     test <@ tDisp.Triggered @>
@@ -955,7 +970,7 @@ let ``use! continues and disposes when disposable is ok`` () =
       asyncResult {
         use! _d = Ok disp
         t.Trigger()
-      } |> Async.RunSynchronously
+      } |> AsyncResult.toAsync |> Async.RunSynchronously
 
     test <@ result = Ok () @>
     test <@ tDisp.Triggered @>
@@ -972,9 +987,9 @@ let ``use! continues and disposes when disposable is async-wrapped ok`` () =
 
     let result =
       asyncResult {
-        use! _d = async { return Ok disp }
+        use! _d = async { return Ok disp } |> AR
         t.Trigger()
-      } |> Async.RunSynchronously
+      } |> AsyncResult.toAsync |> Async.RunSynchronously
 
     test <@ result = Ok () @>
     test <@ tDisp.Triggered @>
@@ -992,7 +1007,7 @@ let ``use! stops when disposable is error`` () =
       asyncResult {
         use! _d = Error err
         t.Trigger()
-      } |> Async.RunSynchronously
+      } |> AsyncResult.toAsync |> Async.RunSynchronously
 
     test <@ result = Error err @>
     test <@ not t.Triggered @>
@@ -1007,9 +1022,9 @@ let ``use! stops when disposable is async-wrapped error`` () =
 
     let result =
       asyncResult {
-        use! _d = async { return Error err }
+        use! _d = async { return Error err } |> AR
         t.Trigger()
-      } |> Async.RunSynchronously
+      } |> AsyncResult.toAsync |> Async.RunSynchronously
 
     test <@ result = Error err @>
     test <@ not t.Triggered @>
@@ -1023,7 +1038,7 @@ let ``use ignores null disposable`` () =
       asyncResult {
         use _d = null
         do! Ok ()
-      } |> Async.RunSynchronously
+      } |> AsyncResult.toAsync |> Async.RunSynchronously
     test <@ result = Ok () @>
   }
 
@@ -1035,7 +1050,7 @@ let ``use! ignores null Ok-wrapped disposable`` () =
       asyncResult {
         use! _d = Ok null
         do! Ok ()
-      } |> Async.RunSynchronously
+      } |> AsyncResult.toAsync |> Async.RunSynchronously
     test <@ result = Ok () @>
   }
 
@@ -1044,9 +1059,9 @@ let ``use! ignores null async and result wrapped disposable`` () =
   Property.check <| property {
     let result =
       asyncResult {
-        use! _d = async { return Ok null }
+        use! _d = async { return Ok null } |> AR
         do! Ok ()
-      } |> Async.RunSynchronously
+      } |> AsyncResult.toAsync |> Async.RunSynchronously
     test <@ result = Ok () @>
   }
 
@@ -1058,6 +1073,33 @@ let ``use! ignores null async-wrapped disposable`` () =
       asyncResult {
         use! _d = async { return null }
         do! Ok ()
-      } |> Async.RunSynchronously
+      } |> AsyncResult.toAsync |> Async.RunSynchronously
     test <@ result = Ok () @>
   }
+
+
+type CustomDisposable() =
+  member __.X = ""
+  interface IDisposable with
+    member __.Dispose () = ()
+
+
+let ``use! is usable without type annotations when AsyncResult`` () =
+  asyncResult {
+    use! d = async { return Ok <| new CustomDisposable () } |> AR
+    return d.X
+  } |> AsyncResult.toAsync |> Async.RunSynchronously
+
+
+let ``use! is usable without type annotations when async`` () =
+  asyncResult {
+    use! d = async { return new CustomDisposable () }
+    return d.X
+  } |> AsyncResult.toAsync |> Async.RunSynchronously
+
+
+let ``use! is usable without type annotations when result`` () =
+  asyncResult {
+    use! d = Ok <| new CustomDisposable ()
+    return d.X
+  } |> AsyncResult.toAsync |> Async.RunSynchronously
