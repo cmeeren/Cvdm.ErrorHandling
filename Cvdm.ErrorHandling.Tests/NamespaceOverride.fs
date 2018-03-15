@@ -1,4 +1,4 @@
-/// Testing that the auto-opened name do not override any user-defined ones...
+// Testing that the auto-opened name do not override any user-defined ones...
 module SomeUserNamespace.SomeUserModule
 
 module AsyncResult = 
@@ -15,7 +15,7 @@ let _ : string = AsyncResult.defaultValue
 let _ : string = result
 let _ : string = asyncResult
 
-/// ... but that the user may still use the library ones by opening them explicitly
+// ... but that the user may still use the library ones by opening them explicitly
 open Cvdm.ErrorHandling
 
 let _ : 'a -> Async<Result<'a, 'b>> -> Async<'a> = AsyncResult.defaultValue
