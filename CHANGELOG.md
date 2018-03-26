@@ -3,7 +3,7 @@ Changelog
 
 ##### 0.5.1 (2018-03-14)
 
-* Fix `use!` in conjunction with non-nullable `IDisposable` types
+* Fix `use`/`use!` in conjunction with non-nullable `IDisposable` types
 
 ##### 0.5.0 (2018-03-14)
 

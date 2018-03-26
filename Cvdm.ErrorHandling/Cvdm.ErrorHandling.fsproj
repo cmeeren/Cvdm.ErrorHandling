@@ -14,7 +14,7 @@
     <PackageLicenseUrl>https://github.com/cmeeren/Cvdm.ErrorHandling/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/cmeeren/Cvdm.ErrorHandling</PackageProjectUrl>
     <PackageTags>f# error-handling computation-expression asyncresult async result</PackageTags>
-    <PackageReleaseNotes>Fix `use!` in conjunction with non-nullable `IDisposable` types</PackageReleaseNotes>
+    <PackageReleaseNotes>Fix `use`/`use!` in conjunction with non-nullable `IDisposable` types</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup>

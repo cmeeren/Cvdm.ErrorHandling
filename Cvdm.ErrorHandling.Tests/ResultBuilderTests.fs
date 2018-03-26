@@ -557,3 +557,13 @@ let ``use! handles non-nullable disposable`` () =
     }    
     raises <@ CustomDisposedException @>
   }
+
+[<Fact>]
+let ``use handles non-nullable disposable`` () =
+  Property.check <| property {
+    let result = result {
+      use _d = new CustomDisposable()
+      do! Ok ()
+    }    
+    raises <@ CustomDisposedException @>
+  }  
