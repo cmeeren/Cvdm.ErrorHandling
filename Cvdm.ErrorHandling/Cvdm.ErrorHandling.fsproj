@@ -8,13 +8,13 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <Version>0.5.0</Version>
+    <Version>0.5.1</Version>
     <Authors>Christer van der Meeren</Authors>
     <Description>AsyncResult and Result computation expressions and helper functions for error handling in F#.</Description>
     <PackageLicenseUrl>https://github.com/cmeeren/Cvdm.ErrorHandling/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/cmeeren/Cvdm.ErrorHandling</PackageProjectUrl>
     <PackageTags>f# error-handling computation-expression asyncresult async result</PackageTags>
-    <PackageReleaseNotes>Breaking change: Added assembly-level AutoOpen attribute. Importing the library will automatically import the helper methods as well as the builder instances.</PackageReleaseNotes>
+    <PackageReleaseNotes>Fix `use!` in conjunction with non-nullable `IDisposable` types</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup>
