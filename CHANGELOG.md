@@ -1,6 +1,10 @@
 Changelog
 ===
 
+##### 0.5.1 (2018-03-14)
+
+* Fix `use`/`use!` in conjunction with non-nullable `IDisposable` types
+
 ##### 0.5.0 (2018-03-14)
 
 * Breaking: Added assembly-level AutoOpen attribute. Importing the library will automatically import the helper methods as well as the builder instances
