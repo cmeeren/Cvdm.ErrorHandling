@@ -35,9 +35,8 @@ type ResultBuilder() =
   member x.Using (disp: #IDisposable, body) =
     let result = fun () -> body disp
     x.TryFinally (result, fun () ->
-      match disp with
-      | null -> ()
-      | d -> d.Dispose ())
+      if not (obj.ReferenceEquals(disp, null)) then
+        disp.Dispose ())
 
   member this.While (guard, body) =
     if not <| guard () then this.Zero()
