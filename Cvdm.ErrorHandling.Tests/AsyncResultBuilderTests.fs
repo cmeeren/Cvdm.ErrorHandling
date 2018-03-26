@@ -1065,10 +1065,23 @@ let ``use! ignores null async-wrapped disposable`` () =
 [<Fact>]
 let ``use! handles non-nullable async-wrapped disposable`` () =
   Property.check <| property {
-    let result =
-      asyncResult {
-        use! _d = async { return (new CustomDisposable()) }
-        do! Ok ()
-      } |> Async.RunSynchronously
-    raises <@ CustomDisposedException @>
+    raises<CustomDisposedException>
+      <@      
+        asyncResult {
+          use! _d = async { return (new CustomDisposable()) }
+          do! Ok ()
+        } |> Async.RunSynchronously
+      @>
   }
+
+[<Fact>]
+let ``use handles non-nullable async-wrapped disposable`` () =
+  Property.check <| property {
+    raises<CustomDisposedException>
+      <@       
+        asyncResult {
+          use _d = new CustomDisposable()
+          do! Ok ()
+        } |> Async.RunSynchronously
+      @>
+  }  

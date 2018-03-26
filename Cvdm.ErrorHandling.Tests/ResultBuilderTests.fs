@@ -551,19 +551,23 @@ let ``use! ignores null disposable`` () =
 [<Fact>]
 let ``use! handles non-nullable disposable`` () =
   Property.check <| property {
-    let result = result {
-      use! _d = Ok (new CustomDisposable())
-      do! Ok ()
-    }    
-    raises <@ CustomDisposedException @>
+    raises<CustomDisposedException> 
+      <@ 
+        result {
+          use! _d = Ok (new CustomDisposable())
+          do! Ok ()
+        }    
+      @>
   }
 
 [<Fact>]
 let ``use handles non-nullable disposable`` () =
   Property.check <| property {
-    let result = result {
-      use _d = new CustomDisposable()
-      do! Ok ()
-    }    
-    raises <@ CustomDisposedException @>
+    raises<CustomDisposedException> 
+      <@ 
+        result {
+          use _d = new CustomDisposable()
+          do! Ok ()
+        }  
+      @>
   }  
