@@ -25,10 +25,10 @@ let login (username: string) (password: string) : Result<AuthToken, LoginError> 
   result {
     // requireSome unwraps a Some value or gives the specified error if None
     let! user = username |> tryGetUser |> Result.requireSome InvalidUser
-    
+
     // requireTrue gives the specified error if false
     do! user |> isPwdValid password |> Result.requireTrue InvalidPwd
-    
+
     // Error value is wrapped/transformed (Unauthorized has signature AuthError -> LoginError)
     do! user |> authorize |> Result.mapError Unauthorized
 
@@ -104,6 +104,10 @@ let! (str: string) = asyncResult { return "" }
 ```
 
 Things seem to work fine when the right-hand side is `Async<_>` or `Result<_,_>`.
+
+### Using this library in a Fable project
+
+This library includes its source code in the Nuget package and has no further dependencies so it can be used with the [Fable](http://fable.io) F# to Javascript transpiler. In Fable projects, module-wide AutoOpen instructions as used by this libary can fail - in this case just add an explicit open statement (`open Cvdm.ErrorHandling`).
 
 ### A technical note on overload resolution
 
