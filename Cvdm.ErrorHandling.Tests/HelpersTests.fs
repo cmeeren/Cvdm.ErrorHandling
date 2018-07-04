@@ -93,6 +93,76 @@ module Result =
 
 
   [<Fact>]
+  let ``requireEqual returns ok if the values are equal`` () =
+    Property.check <| property {
+      let! value = GenX.auto<string>
+      let! err = GenX.auto<string>
+      test <@ Result.requireEqual value value err = Ok () @>
+    }
+
+
+  [<Fact>]
+  let ``requireEqual returns the specified error value if the values are not equal`` () =
+    Property.check <| property {
+      let! value1 = GenX.auto<string>
+      let! value2 = GenX.auto<string> |> GenX.notEqualTo value1
+      let! err = GenX.auto<string>
+      test <@ Result.requireEqual value1 value2 err = Error err @>
+    }
+
+
+  [<Fact>]
+  let ``requireEmpty returns ok if the sequence is empty`` () =
+    Property.check <| property {
+      let! err = GenX.auto<string>
+      test <@ [] |> Seq.ofList |> Result.requireEmpty err = Ok () @>
+    }
+
+
+  [<Fact>]
+  let ``requireEmpty returns the specified error value if the sequence is not empty`` () =
+    Property.check <| property {
+      let! nonEmptyList = GenX.auto<int> |> GenX.lList 1 10
+      let! err = GenX.auto<string>
+      test <@ nonEmptyList |> Seq.ofList |> Result.requireEmpty err = Error err @>
+    }
+
+
+  [<Fact>]
+  let ``requireNotEmpty returns ok if the sequence is not empty`` () =
+    Property.check <| property {
+      let! nonEmptyList = GenX.auto<int> |> GenX.lList 1 10
+      let! err = GenX.auto<string>
+      test <@ nonEmptyList |> Seq.ofList |> Result.requireNotEmpty err = Ok () @>
+    }
+
+
+  [<Fact>]
+  let ``requireNotEmpty returns the specified error value if the sequence is empty`` () =
+    Property.check <| property {
+      let! err = GenX.auto<string>
+      test <@ [] |> Seq.ofList |> Result.requireNotEmpty err = Error err @>
+    }
+
+
+  [<Fact>]
+  let ``requireHead returns the sequence head if the sequence is not empty`` () =
+    Property.check <| property {
+      let! nonEmptyList = GenX.auto<int> |> GenX.lList 1 10
+      let! err = GenX.auto<string>
+      test <@ nonEmptyList |> Seq.ofList |> Result.requireHead err = Ok nonEmptyList.Head @>
+    }
+
+
+  [<Fact>]
+  let ``requireHead returns the specified error value if the sequence is empty`` () =
+    Property.check <| property {
+      let! err = GenX.auto<string>
+      test <@ [] |> Seq.ofList |> Result.requireHead err = Error err @>
+    }
+
+
+  [<Fact>]
   let ``withError replaces a unit error value with a custom error value`` () =
     Property.check <| property {
       let! err = GenX.auto<string>
@@ -579,6 +649,124 @@ module AsyncResult =
       let result =
         async { return Some value }
         |> AsyncResult.requireNone err
+        |> Async.RunSynchronously
+
+      test <@ result = Error err @>
+    }
+
+
+  [<Fact>]
+  let ``requireEqualTo returns ok if the values are equal`` () =
+    Property.check <| property {
+      let! value = GenX.auto<string>
+      let! err = GenX.auto<string>
+
+      let result =
+        async { return value }
+        |> AsyncResult.requireEqualTo value err
+        |> Async.RunSynchronously
+
+      test <@ result = Ok () @>
+    }
+
+
+  [<Fact>]
+  let ``requireEqualTo returns the specified error value if the values are not equal`` () =
+    Property.check <| property {
+      let! value1 = GenX.auto<string>
+      let! value2 = GenX.auto<string> |> GenX.notEqualTo value1
+      let! err = GenX.auto<string>
+
+      let result =
+        async { return value1 }
+        |> AsyncResult.requireEqualTo value2 err
+        |> Async.RunSynchronously
+
+      test <@ result = Error err @>
+    }
+
+
+  [<Fact>]
+  let ``requireEmpty returns ok if the sequence is empty`` () =
+    Property.check <| property {
+      let! err = GenX.auto<string>
+
+      let result =
+        async { return [] |> Seq.ofList }
+        |> AsyncResult.requireEmpty err
+        |> Async.RunSynchronously
+
+      test <@ result = Ok () @>
+    }
+
+
+  [<Fact>]
+  let ``requireEmpty returns the specified error value if the sequence is not empty`` () =
+    Property.check <| property {
+      let! nonEmptyList = GenX.auto<int> |> GenX.lList 1 10
+      let! err = GenX.auto<string>
+
+      let result =
+        async { return nonEmptyList |> Seq.ofList }
+        |> AsyncResult.requireEmpty err
+        |> Async.RunSynchronously
+
+      test <@ result = Error err @>
+    }
+
+
+  [<Fact>]
+  let ``requireNotEmpty returns ok if the sequence is not empty`` () =
+    Property.check <| property {
+      let! nonEmptyList = GenX.auto<int> |> GenX.lList 1 10
+      let! err = GenX.auto<string>
+
+      let result =
+        async { return nonEmptyList |> Seq.ofList }
+        |> AsyncResult.requireNotEmpty err
+        |> Async.RunSynchronously
+
+      test <@ result = Ok () @>
+    }
+
+
+  [<Fact>]
+  let ``requireNotEmpty returns the specified error value if the sequence is empty`` () =
+    Property.check <| property {
+      let! err = GenX.auto<string>
+
+      let result =
+        async { return [] |> Seq.ofList }
+        |> AsyncResult.requireNotEmpty err
+        |> Async.RunSynchronously
+
+      test <@ result = Error err @>
+    }
+
+
+  [<Fact>]
+  let ``requireHead returns the sequence head if the sequence is not empty`` () =
+    Property.check <| property {
+      let! nonEmptyList = GenX.auto<int> |> GenX.lList 1 10
+      let! err = GenX.auto<string>
+
+      let result =
+        async { return nonEmptyList |> Seq.ofList }
+        |> AsyncResult.requireHead err
+        |> Async.RunSynchronously
+
+      test <@ result = Ok nonEmptyList.Head @>
+    }
+
+
+  [<Fact>]
+  let ``requireHead returns the specified error value if the sequence is empty`` () =
+    Property.check <| property {
+      let! err = GenX.auto<string>
+
+      let result =
+        async { return [] |> Seq.ofList }
+        |> AsyncResult.requireHead err
         |> Async.RunSynchronously
 
       test <@ result = Error err @>
