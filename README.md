@@ -12,7 +12,6 @@ Summary
 * Use `asyncResult { }` instead of `result { }` if you need to call functions returning `Async<_>`
 * The library is auto-opened, so you don’t need to `open Cvdm.ErrorHandling` (except when using Fable)
 * The library includes several helper functions in the `Result` and `AsyncResult` modules, see [Helpers.fs](https://github.com/cmeeren/Cvdm.ErrorHandling/blob/master/Cvdm.ErrorHandling/Helpers.fs) for signatures and details
-* 
 
 The `result` computation expression
 -----------------------------------
