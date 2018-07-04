@@ -1,9 +1,10 @@
 Changelog
 ===
 
-##### 0.5.2 (2018-07-04)
+##### 1.0.0 (2018-07-05)
 
-* Configure fsproj file to include source code in the Nuget package for Fable compatibility.
+* Support Fable
+* Add more helper functions
 
 ##### 0.5.1 (2018-03-14)
 
