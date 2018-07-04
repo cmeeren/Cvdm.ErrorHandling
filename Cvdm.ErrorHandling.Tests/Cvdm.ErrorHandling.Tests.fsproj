@@ -17,9 +17,9 @@
   </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="Hedgehog" Version="0.7.0" />
+    <PackageReference Include="Hedgehog" Version="0.8.1" />
     <PackageReference Include="Hedgehog.Experimental" Version="0.1.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.6.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.7.2" />
     <PackageReference Include="Unquote" Version="4.0.0" />
     <PackageReference Include="xunit.core" Version="2.3.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
@@ -27,6 +27,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Cvdm.ErrorHandling\Cvdm.ErrorHandling.fsproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="FSharp.Core" Version="4.5.0" />
   </ItemGroup>
 
 </Project>
