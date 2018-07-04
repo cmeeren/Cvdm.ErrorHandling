@@ -1,6 +1,10 @@
 Changelog
 ===
 
+##### 0.5.2 (2018-07-04)
+
+* Configure fsproj file to include source code in the Nuget package for Fable compatibility.
+
 ##### 0.5.1 (2018-03-14)
 
 * Fix `use`/`use!` in conjunction with non-nullable `IDisposable` types
@@ -31,4 +35,3 @@ Changelog
 ##### 0.1.0 (2018-03-07)
 
 * Initial release
-
