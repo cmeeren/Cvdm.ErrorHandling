@@ -1,12 +1,21 @@
 Cvdm.ErrorHandling
-===
+==================
 
 [![NuGet](https://img.shields.io/nuget/dt/Cvdm.ErrorHandling.svg?style=flat)](https://www.nuget.org/packages/Cvdm.ErrorHandling/) [![Build status](https://ci.appveyor.com/api/projects/status/r4pe0qp93fnjenoc/branch/master?svg=true)](https://ci.appveyor.com/project/cmeeren/cvdm-errorhandling/branch/master)
 
 *`asyncResult` and `result` computation expressions and helper functions for error handling in F#.*
 
+Summary
+-------
+
+* Use `result { }` for monadic error handling
+* Use `asyncResult { }` instead of `result { }` if you need to call functions returning `Async<_>`
+* The library is auto-opened, so you don’t need to `open Cvdm.ErrorHandling` (except when using Fable)
+* The library includes several helper functions in the `Result` and `AsyncResult` modules, see [Helpers.fs](https://github.com/cmeeren/Cvdm.ErrorHandling/blob/master/Cvdm.ErrorHandling/Helpers.fs) for signatures and details
+* 
+
 The `result` computation expression
----
+-----------------------------------
 
 The `result` computation expression simplifies synchronous error handling using F#'s `Result<_,_>` type. A single computation expression must have a single error type, and helper functions simplify transforming return values to a `Result` with the needed error type. Here's an example:
 
@@ -41,7 +50,7 @@ The expression above will stop at and return the first error.
 
 
 The `asyncResult` computation expression
----
+----------------------------------------
 
 The `asyncResult` computation expression is more or less identical to the `result` expression except it's centered around `Async<Result<_,_>> `, with overloads supporting `Result<_,_>` (which is wrapped in `Async`) and `Async<_>` (whose value is wrapped using `Result.Ok`). In other words, on the right side of `let!`, `do!` etc. you can have `Async<_>`, `Async<Result<_,_>` or `Async<_>`.
 
@@ -75,13 +84,18 @@ let login (username: string) (password: string) : Async<Result<AuthToken, LoginE
   }
 ```
 
-### A note on namespace imports
+The helper functions
+--------------------
+
+The library includes several helper functions in the `Result` and `AsyncResult` modules, see [Helpers.fs](https://github.com/cmeeren/Cvdm.ErrorHandling/blob/master/Cvdm.ErrorHandling/Helpers.fs) for signatures and details.
+
+## A note on namespace imports
 
 This library is tagged with the `AutoOpen` attribute. Referencing this library will automatically open the `Cvdm.ErrorHandling` namespace. This means you will have access to this library's computation expressions and helper methods in every file without any explicit `open` statements.
 
 Should you have a value or function in your code with the same name as a value or function in this library (e.g. `result`/`Result.defaultValue`), your definition will take precedence. You may override this behaviour in a file and use the library's definition by explicitly `open`ing `Cvdm.ErrorHandling` again.
 
-### A note on type inference
+## A note on type inference
 
 Due to limitations in the F# type inference system when overloads are involved (see [Microsoft/visualfsharp#4472](https://github.com/Microsoft/visualfsharp/issues/4472)), you might sometimes have to add explicit type annotations. For example, the following expression
 
@@ -105,11 +119,11 @@ let! (str: string) = asyncResult { return "" }
 
 Things seem to work fine when the right-hand side is `Async<_>` or `Result<_,_>`.
 
-### Using this library in a Fable project
+## Using this library in a Fable project
 
-This library includes its source code in the Nuget package and has no further dependencies so it can be used with the [Fable](http://fable.io) F# to Javascript transpiler. In Fable projects, module-wide AutoOpen instructions as used by this libary can fail - in this case just add an explicit open statement (`open Cvdm.ErrorHandling`).
+This library can be used with [Fable](http://fable.io). In Fable projects, `AutoOpen` instructions as used by this library can fail.  In this case, just add an explicit open statement (`open Cvdm.ErrorHandling`).
 
-### A technical note on overload resolution
+## A technical note on overload resolution
 
 (Aside from the type inference limiation mentioned above, it all "just works" as you'd want; this is for the curious.)
 
@@ -119,7 +133,3 @@ If you have an expression of type `Async<Result<_,_>>`, then the compiler normal
 2. it still follows strict rules (as defined above), and
 3. the whole point of this computation expression is to make your life easier when handling asynchronous errors. The alternative is to explicitly wrap all `Async<Result<_,_>>` expressions in a wrapper type to make overload resolution work (like Chessie does) which IMHO doesn't really add any meaningful clarity.
 
-The helper functions
----
-
-See [Helpers.fs](https://github.com/cmeeren/Cvdm.ErrorHandling/blob/master/Cvdm.ErrorHandling/Helpers.fs).
