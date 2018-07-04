@@ -28,4 +28,9 @@
     <Compile Include="AsyncResultBuilder.fs" />
     <Compile Include="Helpers.fs" />
   </ItemGroup>
+  <!-- Add source files to package -->
+  <ItemGroup>
+    <Content Include="*.fsproj; *.fs" PackagePath="fable\" />
+    <!--<Content Include="src\" PackagePath="fable\src\" />-->
+</ItemGroup>
 </Project>
