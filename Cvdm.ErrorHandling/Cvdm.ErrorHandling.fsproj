@@ -14,7 +14,7 @@
     <PackageLicenseUrl>https://github.com/cmeeren/Cvdm.ErrorHandling/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/cmeeren/Cvdm.ErrorHandling</PackageProjectUrl>
     <PackageTags>f# error-handling computation-expression asyncresult async result</PackageTags>
-    <PackageReleaseNotes>Fix potential crash bug when throwing from async and catching/finalizing in asyncResult</PackageReleaseNotes>
+    <PackageReleaseNotes>Fix try/with/finally in asyncResult not catching exceptions thrown from a plain async expressions</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup>
