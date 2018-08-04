@@ -29,11 +29,11 @@ type AsyncResultBuilder() =
   member this.Bind (result: Result<'a, 'c>, binder: 'a -> Async<Result<'b, 'c>>) : Async<Result<'b, 'c>> =
     this.Bind(this.ReturnFrom result, binder)
 
-  member __.TryWith (body, handler) =
-    try body() with e -> handler e
+  member __.TryWith ((body : (Unit -> Async<Result<'a, 'b>>)), handler : (System.Exception -> Async<Result<'a, 'b>>)) : Async<Result<'a, 'b>> =
+    async {try return! body() with e -> return! handler e }
 
-  member __.TryFinally (body, compensation) =
-    try body() finally compensation()
+  member __.TryFinally ((body : (Unit -> Async<Result<'a, 'b>>)), compensation : (Unit -> Unit)) : Async<Result<'a, 'b>> =
+    async {try return! body() finally compensation() }
 
   member __.Delay f =
     f
