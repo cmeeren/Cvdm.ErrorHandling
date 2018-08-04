@@ -1,6 +1,10 @@
 Changelog
 ===
 
+##### 1.0.1 (2018-08-05)
+
+* Fix `try/with`/`try/finally` bug when throwing from within a plain `async` and catching/finalizing in an `asyncResult`. This bug let exceptions ignore `with` or `finally` clauses and potentially crash the application.
+
 ##### 1.0.0 (2018-07-05)
 
 * Support Fable
