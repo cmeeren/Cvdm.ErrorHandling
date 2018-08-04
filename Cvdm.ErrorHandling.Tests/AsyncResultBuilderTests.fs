@@ -839,11 +839,6 @@ let ``behavior of try-with-finally when thrown`` () =
     test <@ tFinally.Triggered @>
   }
 
-let throwingFn() =
-    async {
-        failwith "was asked to throw"
-    }
-
 
 [<Fact>]
 let ``behavior of try-with-finally when thrown from plain async`` () =
@@ -856,7 +851,7 @@ let ``behavior of try-with-finally when thrown from plain async`` () =
       asyncResult {
         try
           try
-            do! throwingFn()
+            do! async { failwith "was asked to throw" }
             tTry.Trigger()
           with _ -> tCatch.Trigger()
         finally tFinally.Trigger()
