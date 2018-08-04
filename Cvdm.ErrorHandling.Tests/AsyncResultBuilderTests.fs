@@ -841,6 +841,29 @@ let ``behavior of try-with-finally when thrown`` () =
 
 
 [<Fact>]
+let ``behavior of try-with-finally when thrown from plain async`` () =
+  Property.check <| property {
+    let tTry = Trigger()
+    let tCatch = Trigger()
+    let tFinally = Trigger()
+
+    let result =
+      asyncResult {
+        try
+          try
+            do! async { failwith "was asked to throw" }
+            tTry.Trigger()
+          with _ -> tCatch.Trigger()
+        finally tFinally.Trigger()
+      } |> Async.RunSynchronously
+
+    test <@ result = Ok () @>
+    test <@ not tTry.Triggered @>
+    test <@ tCatch.Triggered @>
+    test <@ tFinally.Triggered @>
+  }
+
+[<Fact>]
 let ``simple use disposes`` () =
   Property.check <| property {
     let tDisp = Trigger()
@@ -1066,7 +1089,7 @@ let ``use! ignores null async-wrapped disposable`` () =
 let ``use! handles non-nullable async-wrapped disposable`` () =
   Property.check <| property {
     raises<CustomDisposedException>
-      <@      
+      <@
         asyncResult {
           use! _d = async { return (new CustomDisposable()) }
           do! Ok ()
@@ -1078,10 +1101,10 @@ let ``use! handles non-nullable async-wrapped disposable`` () =
 let ``use handles non-nullable async-wrapped disposable`` () =
   Property.check <| property {
     raises<CustomDisposedException>
-      <@       
+      <@
         asyncResult {
           use _d = new CustomDisposable()
           do! Ok ()
         } |> Async.RunSynchronously
       @>
-  }  
+  }
