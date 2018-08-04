@@ -93,6 +93,76 @@ module Result =
 
 
   [<Fact>]
+  let ``requireEqual returns ok if the values are equal`` () =
+    Property.check <| property {
+      let! value = GenX.auto<string>
+      let! err = GenX.auto<string>
+      test <@ Result.requireEqual value value err = Ok () @>
+    }
+
+
+  [<Fact>]
+  let ``requireEqual returns the specified error value if the values are not equal`` () =
+    Property.check <| property {
+      let! value1 = GenX.auto<string>
+      let! value2 = GenX.auto<string> |> GenX.notEqualTo value1
+      let! err = GenX.auto<string>
+      test <@ Result.requireEqual value1 value2 err = Error err @>
+    }
+
+
+  [<Fact>]
+  let ``requireEmpty returns ok if the sequence is empty`` () =
+    Property.check <| property {
+      let! err = GenX.auto<string>
+      test <@ [] |> Seq.ofList |> Result.requireEmpty err = Ok () @>
+    }
+
+
+  [<Fact>]
+  let ``requireEmpty returns the specified error value if the sequence is not empty`` () =
+    Property.check <| property {
+      let! nonEmptyList = GenX.auto<int> |> GenX.lList 1 10
+      let! err = GenX.auto<string>
+      test <@ nonEmptyList |> Seq.ofList |> Result.requireEmpty err = Error err @>
+    }
+
+
+  [<Fact>]
+  let ``requireNotEmpty returns ok if the sequence is not empty`` () =
+    Property.check <| property {
+      let! nonEmptyList = GenX.auto<int> |> GenX.lList 1 10
+      let! err = GenX.auto<string>
+      test <@ nonEmptyList |> Seq.ofList |> Result.requireNotEmpty err = Ok () @>
+    }
+
+
+  [<Fact>]
+  let ``requireNotEmpty returns the specified error value if the sequence is empty`` () =
+    Property.check <| property {
+      let! err = GenX.auto<string>
+      test <@ [] |> Seq.ofList |> Result.requireNotEmpty err = Error err @>
+    }
+
+
+  [<Fact>]
+  let ``requireHead returns the sequence head if the sequence is not empty`` () =
+    Property.check <| property {
+      let! nonEmptyList = GenX.auto<int> |> GenX.lList 1 10
+      let! err = GenX.auto<string>
+      test <@ nonEmptyList |> Seq.ofList |> Result.requireHead err = Ok nonEmptyList.Head @>
+    }
+
+
+  [<Fact>]
+  let ``requireHead returns the specified error value if the sequence is empty`` () =
+    Property.check <| property {
+      let! err = GenX.auto<string>
+      test <@ [] |> Seq.ofList |> Result.requireHead err = Error err @>
+    }
+
+
+  [<Fact>]
   let ``withError replaces a unit error value with a custom error value`` () =
     Property.check <| property {
       let! err = GenX.auto<string>
@@ -381,15 +451,18 @@ module Result =
 module AsyncResult =
 
 
+  let testAsync f x =
+    async { return x } |> f |> Async.RunSynchronously
+
+
   [<Fact>]
   let ``map passes the ok value to the function`` () =
     Property.check <| property {
       let! value = GenX.auto<string>
       let t = Trigger()
 
-      async { return Ok value }
-      |> AsyncResult.map (fun x -> if x = value then t.Trigger())
-      |> Async.RunSynchronously
+      Ok value
+      |> testAsync (AsyncResult.map (fun x -> if x = value then t.Trigger()))
       |> ignore
 
       test <@ t.Triggered @>
@@ -402,9 +475,8 @@ module AsyncResult =
       let! value = GenX.auto<string>
       let t = Trigger()
 
-      async { return Error value }
-      |> AsyncResult.map (fun _ -> t.Trigger())
-      |> Async.RunSynchronously
+      Error value
+      |> testAsync (AsyncResult.map (fun _ -> t.Trigger()))
       |> ignore
 
       test <@ not t.Triggered @>
@@ -416,13 +488,7 @@ module AsyncResult =
     Property.check <| property {
       let! value = GenX.auto<string>
       let! mapRet = GenX.auto<int>
-
-      let res =
-        async { return Ok value }
-        |> AsyncResult.map (fun _ -> mapRet)
-        |> Async.RunSynchronously
-
-      test <@ res = Ok mapRet @>
+      test <@ Ok value |> testAsync (AsyncResult.map (fun _ -> mapRet)) = Ok mapRet @>
     }
 
 
@@ -432,9 +498,8 @@ module AsyncResult =
       let! value = GenX.auto<string>
       let t = Trigger()
 
-      async { return Error value }
-      |> AsyncResult.mapError (fun x -> if x = value then t.Trigger())
-      |> Async.RunSynchronously
+      Error value
+      |> testAsync (AsyncResult.mapError (fun x -> if x = value then t.Trigger()))
       |> ignore
 
       test <@ t.Triggered @>
@@ -447,9 +512,8 @@ module AsyncResult =
       let! value = GenX.auto<string>
       let t = Trigger()
 
-      async { return Ok value }
-      |> AsyncResult.mapError (fun _ -> t.Trigger())
-      |> Async.RunSynchronously
+      Ok value
+      |> testAsync (AsyncResult.mapError (fun _ -> t.Trigger()))
       |> ignore
 
       test <@ not t.Triggered @>
@@ -461,13 +525,7 @@ module AsyncResult =
     Property.check <| property {
       let! value = GenX.auto<string>
       let! mapRet = GenX.auto<int>
-
-      let res =
-        async { return Error value }
-        |> AsyncResult.mapError (fun _ -> mapRet)
-        |> Async.RunSynchronously
-
-      test <@ res = Error mapRet @>
+      test <@ Error value |> testAsync (AsyncResult.mapError (fun _ -> mapRet)) = Error mapRet @>
     }
 
 
@@ -475,13 +533,7 @@ module AsyncResult =
   let ``requireTrue returns ok if true`` () =
     Property.check <| property {
       let! err = GenX.auto<string>
-
-      let result =
-        async { return true }
-        |> AsyncResult.requireTrue err
-        |> Async.RunSynchronously
-
-      test <@ result = Ok () @>
+      test <@ true |> testAsync (AsyncResult.requireTrue err) = Ok () @>
     }
 
 
@@ -489,13 +541,7 @@ module AsyncResult =
   let ``requireTrue returns the specified error value if false`` () =
     Property.check <| property {
       let! err = GenX.auto<string>
-
-      let result =
-        async { return false }
-        |> AsyncResult.requireTrue err
-        |> Async.RunSynchronously
-
-      test <@ result = Error err @>
+      test <@ false |> testAsync (AsyncResult.requireTrue err) = Error err @>
     }
 
 
@@ -503,13 +549,7 @@ module AsyncResult =
   let ``requireFalse returns ok if false`` () =
     Property.check <| property {
       let! err = GenX.auto<string>
-
-      let result =
-        async { return false }
-        |> AsyncResult.requireFalse err
-        |> Async.RunSynchronously
-
-      test <@ result = Ok () @>
+      test <@ false |> testAsync (AsyncResult.requireFalse err) = Ok () @>
     }
 
 
@@ -517,13 +557,7 @@ module AsyncResult =
   let ``requireFalse returns the specified error value if true`` () =
     Property.check <| property {
       let! err = GenX.auto<string>
-
-      let result =
-        async { return true }
-        |> AsyncResult.requireFalse err
-        |> Async.RunSynchronously
-
-      test <@ result = Error err @>
+      test <@ true |> testAsync (AsyncResult.requireFalse err) = Error err @>
     }
 
 
@@ -532,13 +566,7 @@ module AsyncResult =
     Property.check <| property {
       let! value = GenX.auto<int>
       let! err = GenX.auto<string>
-
-      let result =
-        async { return Some value }
-        |> AsyncResult.requireSome err
-        |> Async.RunSynchronously
-
-      test <@ result = Ok value @>
+      test <@ Some value |> testAsync (AsyncResult.requireSome err) = Ok value @>
     }
 
 
@@ -546,13 +574,7 @@ module AsyncResult =
   let ``requireSome returns the specified error value if None`` () =
     Property.check <| property {
       let! err = GenX.auto<string>
-
-      let result =
-        async { return None }
-        |> AsyncResult.requireSome err
-        |> Async.RunSynchronously
-
-      test <@ result = Error err @>
+      test <@ None |> testAsync (AsyncResult.requireSome err) = Error err @>
     }
 
 
@@ -560,13 +582,7 @@ module AsyncResult =
   let ``requireNone returns ok if None`` () =
     Property.check <| property {
       let! err = GenX.auto<string>
-
-      let result =
-        async { return None }
-        |> AsyncResult.requireNone err
-        |> Async.RunSynchronously
-
-      test <@ result = Ok () @>
+      test <@ None |> testAsync (AsyncResult.requireNone err) = Ok () @>
     }
 
 
@@ -575,13 +591,77 @@ module AsyncResult =
     Property.check <| property {
       let! value = GenX.auto<int>
       let! err = GenX.auto<string>
+      test <@ Some value |> testAsync (AsyncResult.requireNone err) = Error err @>
+    }
 
-      let result =
-        async { return Some value }
-        |> AsyncResult.requireNone err
-        |> Async.RunSynchronously
 
-      test <@ result = Error err @>
+  [<Fact>]
+  let ``requireEqualTo returns ok if the values are equal`` () =
+    Property.check <| property {
+      let! value = GenX.auto<string>
+      let! err = GenX.auto<string>
+      test <@ value |> testAsync (AsyncResult.requireEqualTo value err) = Ok () @>
+    }
+
+
+  [<Fact>]
+  let ``requireEqualTo returns the specified error value if the values are not equal`` () =
+    Property.check <| property {
+      let! value1 = GenX.auto<string>
+      let! value2 = GenX.auto<string> |> GenX.notEqualTo value1
+      let! err = GenX.auto<string>
+      test <@ value1 |> testAsync (AsyncResult.requireEqualTo value2 err) = Error err @>
+    }
+
+
+  [<Fact>]
+  let ``requireEmpty returns ok if the sequence is empty`` () =
+    Property.check <| property {
+      let! err = GenX.auto<string>
+      test <@ [] |> Seq.ofList |> testAsync (AsyncResult.requireEmpty err) = Ok () @>
+    }
+
+
+  [<Fact>]
+  let ``requireEmpty returns the specified error value if the sequence is not empty`` () =
+    Property.check <| property {
+      let! nonEmptyList = GenX.auto<int> |> GenX.lList 1 10
+      let! err = GenX.auto<string>
+      test <@ nonEmptyList |> Seq.ofList |> testAsync (AsyncResult.requireEmpty err) = Error err @>
+    }
+
+
+  [<Fact>]
+  let ``requireNotEmpty returns ok if the sequence is not empty`` () =
+    Property.check <| property {
+      let! nonEmptyList = GenX.auto<int> |> GenX.lList 1 10
+      let! err = GenX.auto<string>
+      test <@ nonEmptyList |> Seq.ofList |> testAsync (AsyncResult.requireNotEmpty err) = Ok () @>
+    }
+
+
+  [<Fact>]
+  let ``requireNotEmpty returns the specified error value if the sequence is empty`` () =
+    Property.check <| property {
+      let! err = GenX.auto<string>
+      test <@ [] |> Seq.ofList |> testAsync (AsyncResult.requireNotEmpty err) = Error err @>
+    }
+
+
+  [<Fact>]
+  let ``requireHead returns the sequence head if the sequence is not empty`` () =
+    Property.check <| property {
+      let! nonEmptyList = GenX.auto<int> |> GenX.lList 1 10
+      let! err = GenX.auto<string>
+      test <@ nonEmptyList |> Seq.ofList |> testAsync (AsyncResult.requireHead err) = Ok nonEmptyList.Head @>
+    }
+
+
+  [<Fact>]
+  let ``requireHead returns the specified error value if the sequence is empty`` () =
+    Property.check <| property {
+      let! err = GenX.auto<string>
+      test <@ [] |> Seq.ofList |> testAsync (AsyncResult.requireHead err) = Error err @>
     }
 
 
@@ -589,13 +669,7 @@ module AsyncResult =
   let ``withError replaces a unit error value with a custom error value`` () =
     Property.check <| property {
       let! err = GenX.auto<string>
-
-      let res =
-        async { return Error () }
-        |> AsyncResult.withError err
-        |> Async.RunSynchronously
-
-      test <@ res = Error err @>
+      test <@ Error () |> testAsync (AsyncResult.withError err) = Error err @>
     }
 
 
@@ -604,13 +678,7 @@ module AsyncResult =
     Property.check <| property {
       let! value = GenX.auto<string>
       let! err = GenX.auto<int>
-
-      let res =
-        async { return Ok value }
-        |> AsyncResult.withError err
-        |> Async.RunSynchronously
-
-      test <@ res = Ok value @>
+      test <@ Ok value |> testAsync (AsyncResult.withError err) = Ok value @>
     }
 
 
@@ -619,13 +687,7 @@ module AsyncResult =
     Property.check <| property {
       let! errOriginal = GenX.auto<string>
       let! errNew = GenX.auto<int>
-
-      let res =
-        async { return Error errOriginal }
-        |> AsyncResult.setError errNew
-        |> Async.RunSynchronously
-
-      test <@ res = Error errNew @>
+      test <@ Error errOriginal |> testAsync (AsyncResult.setError errNew) = Error errNew @>
     }
 
 
@@ -634,13 +696,7 @@ module AsyncResult =
     Property.check <| property {
       let! value = GenX.auto<string>
       let! err = GenX.auto<int>
-
-      let res =
-        async { return Ok value }
-        |> AsyncResult.setError err
-        |> Async.RunSynchronously
-
-      test <@ res = Ok value @>
+      test <@ Ok value |> testAsync (AsyncResult.setError err) = Ok value @>
     }
 
 
@@ -649,13 +705,7 @@ module AsyncResult =
     Property.check <| property {
       let! value = GenX.auto<string>
       let! otherValue = GenX.auto<string>
-
-      let res =
-        async { return Ok value }
-        |> AsyncResult.defaultValue otherValue
-        |> Async.RunSynchronously
-
-      test <@ res = value @>
+      test <@ Ok value |> testAsync (AsyncResult.defaultValue otherValue) = value @>
     }
 
 
@@ -664,13 +714,7 @@ module AsyncResult =
     Property.check <| property {
       let! err = GenX.auto<string>
       let! otherValue = GenX.auto<string>
-
-      let res =
-        async { return Error err }
-        |> AsyncResult.defaultValue otherValue
-        |> Async.RunSynchronously
-
-      test <@ res = otherValue @>
+      test <@ Error err |> testAsync (AsyncResult.defaultValue otherValue) = otherValue @>
     }
 
 
@@ -679,13 +723,7 @@ module AsyncResult =
     Property.check <| property {
       let! value = GenX.auto<string>
       let! otherValue = GenX.auto<string>
-
-      let res =
-        async { return Ok value }
-        |> AsyncResult.defaultWith (fun () -> otherValue)
-        |> Async.RunSynchronously
-
-      test <@ res = value @>
+      test <@ Ok value |> testAsync (AsyncResult.defaultWith (fun () -> otherValue)) = value @>
     }
 
 
@@ -694,13 +732,7 @@ module AsyncResult =
     Property.check <| property {
       let! err = GenX.auto<string>
       let! otherValue = GenX.auto<string>
-
-      let res =
-        async { return Error err }
-        |> AsyncResult.defaultWith (fun () -> otherValue)
-        |> Async.RunSynchronously
-
-      test <@ res = otherValue @>
+      test <@ Error err |> testAsync (AsyncResult.defaultWith (fun () -> otherValue)) = otherValue @>
     }
 
 
@@ -711,9 +743,8 @@ module AsyncResult =
       let! value = GenX.auto<string>
       let! otherValue = GenX.auto<string>
 
-      async { return Ok value }
-      |> AsyncResult.defaultWith (fun () -> t.Trigger(); otherValue)
-      |> Async.RunSynchronously
+      Ok value
+      |> testAsync (AsyncResult.defaultWith (fun () -> t.Trigger(); otherValue))
       |> ignore
 
       test <@ not t.Triggered @>
@@ -726,12 +757,7 @@ module AsyncResult =
   let ``ignoreError always returns unit`` () =
     Property.check <| property {
       let! result = GenX.auto<Result<unit,string>>
-      let res =
-        async { return result }
-        |> AsyncResult.ignoreError
-        |> Async.RunSynchronously
-
-      test <@ res = () @>
+      test <@ result |> testAsync AsyncResult.ignoreError = () @>
     }
 
 
@@ -741,9 +767,8 @@ module AsyncResult =
       let! value = GenX.auto<string>
       let t = Trigger()
 
-      async { return Ok value }
-      |> AsyncResult.teeIf (fun _ -> true) (fun _ -> t.Trigger())
-      |> Async.RunSynchronously
+      Ok value
+      |> testAsync (AsyncResult.teeIf (fun _ -> true) (fun _ -> t.Trigger()))
       |> ignore
 
       test <@ t.Triggered @>
@@ -756,9 +781,8 @@ module AsyncResult =
       let! value = GenX.auto<string>
       let t = Trigger()
 
-      async { return Error value }
-      |> AsyncResult.teeIf (fun _ -> true) (fun _ -> t.Trigger())
-      |> Async.RunSynchronously
+      Error value
+      |> testAsync (AsyncResult.teeIf (fun _ -> true) (fun _ -> t.Trigger()))
       |> ignore
 
       test <@ not t.Triggered @>
@@ -771,9 +795,8 @@ module AsyncResult =
       let! value = GenX.auto<string>
       let t = Trigger()
 
-      async { return Ok value }
-      |> AsyncResult.teeIf (fun _ -> false) (fun _ -> t.Trigger())
-      |> Async.RunSynchronously
+      Ok value
+      |> testAsync (AsyncResult.teeIf (fun _ -> false) (fun _ -> t.Trigger()))
       |> ignore
 
       test <@ not t.Triggered @>
@@ -786,9 +809,8 @@ module AsyncResult =
       let! value = GenX.auto<string>
       let receivedCorrectValue = Trigger()
 
-      async { return Ok value }
-      |> AsyncResult.teeIf (fun x -> (if x = value then receivedCorrectValue.Trigger()); true) ignore
-      |> Async.RunSynchronously
+      Ok value
+      |> testAsync (AsyncResult.teeIf (fun x -> (if x = value then receivedCorrectValue.Trigger()); true) ignore)
       |> ignore
 
       test <@ receivedCorrectValue.Triggered @>
@@ -801,9 +823,8 @@ module AsyncResult =
       let! value = GenX.auto<string>
       let receivedCorrectValue = Trigger()
 
-      async { return Ok value }
-      |> AsyncResult.teeIf (fun _ -> true) (fun x -> if x = value then receivedCorrectValue.Trigger())
-      |> Async.RunSynchronously
+      Ok value
+      |> testAsync (AsyncResult.teeIf (fun _ -> true) (fun x -> if x = value then receivedCorrectValue.Trigger()))
       |> ignore
 
       test <@ receivedCorrectValue.Triggered @>
@@ -814,13 +835,7 @@ module AsyncResult =
   let ``teeIf returns the original value`` () =
     Property.check <| property {
       let! value = GenX.auto<Result<string,int>>
-
-      let res =
-        async { return value }
-        |> AsyncResult.teeIf (fun _ -> true) ignore
-        |> Async.RunSynchronously
-
-      test <@ res = value @>
+      test <@ value |> testAsync (AsyncResult.teeIf (fun _ -> true) ignore) = value @>
     }
 
 
@@ -830,9 +845,8 @@ module AsyncResult =
       let! value = GenX.auto<string>
       let t = Trigger()
 
-      async { return Ok value }
-      |> AsyncResult.tee (fun _ -> t.Trigger())
-      |> Async.RunSynchronously
+      Ok value
+      |> testAsync (AsyncResult.tee (fun _ -> t.Trigger()))
       |> ignore
 
       test <@ t.Triggered @>
@@ -845,9 +859,8 @@ module AsyncResult =
       let! value = GenX.auto<string>
       let t = Trigger()
 
-      async { return Error value }
-      |> AsyncResult.tee (fun _ -> t.Trigger())
-      |> Async.RunSynchronously
+      Error value
+      |> testAsync (AsyncResult.tee (fun _ -> t.Trigger()))
       |> ignore
 
       test <@ not t.Triggered @>
@@ -860,9 +873,8 @@ module AsyncResult =
       let! value = GenX.auto<string>
       let receivedCorrectValue = Trigger()
 
-      async { return Ok value }
-      |> AsyncResult.tee (fun x -> if x = value then receivedCorrectValue.Trigger())
-      |> Async.RunSynchronously
+      Ok value
+      |> testAsync (AsyncResult.tee (fun x -> if x = value then receivedCorrectValue.Trigger()))
       |> ignore
 
       test <@ receivedCorrectValue.Triggered @>
@@ -873,13 +885,7 @@ module AsyncResult =
   let ``tee returns the original value`` () =
     Property.check <| property {
       let! value = GenX.auto<Result<string,int>>
-
-      let res =
-        async { return value }
-        |> AsyncResult.tee ignore
-        |> Async.RunSynchronously
-
-      test <@ res = value @>
+      test <@ value |> testAsync (AsyncResult.tee ignore) = value @>
     }
 
 
@@ -889,9 +895,8 @@ module AsyncResult =
       let! value = GenX.auto<string>
       let t = Trigger()
 
-      async { return Error value }
-      |> AsyncResult.teeErrorIf (fun _ -> true) (fun _ -> t.Trigger())
-      |> Async.RunSynchronously
+      Error value
+      |> testAsync (AsyncResult.teeErrorIf (fun _ -> true) (fun _ -> t.Trigger()))
       |> ignore
 
       test <@ t.Triggered @>
@@ -904,9 +909,8 @@ module AsyncResult =
       let! value = GenX.auto<string>
       let t = Trigger()
 
-      async { return Ok value }
-      |> AsyncResult.teeErrorIf (fun _ -> true) (fun _ -> t.Trigger())
-      |> Async.RunSynchronously
+      Ok value
+      |> testAsync (AsyncResult.teeErrorIf (fun _ -> true) (fun _ -> t.Trigger()))
       |> ignore
 
       test <@ not t.Triggered @>
@@ -919,9 +923,8 @@ module AsyncResult =
       let! value = GenX.auto<string>
       let t = Trigger()
 
-      async { return Error value }
-      |> AsyncResult.teeErrorIf (fun _ -> false) (fun _ -> t.Trigger())
-      |> Async.RunSynchronously
+      Error value
+      |> testAsync (AsyncResult.teeErrorIf (fun _ -> false) (fun _ -> t.Trigger()))
       |> ignore
 
       test <@ not t.Triggered @>
@@ -934,9 +937,8 @@ module AsyncResult =
       let! value = GenX.auto<string>
       let receivedCorrectValue = Trigger()
 
-      async { return Error value }
-      |> AsyncResult.teeErrorIf (fun x -> (if x = value then receivedCorrectValue.Trigger()); true) ignore
-      |> Async.RunSynchronously
+      Error value
+      |> testAsync (AsyncResult.teeErrorIf (fun x -> (if x = value then receivedCorrectValue.Trigger()); true) ignore)
       |> ignore
 
       test <@ receivedCorrectValue.Triggered @>
@@ -949,9 +951,8 @@ module AsyncResult =
       let! value = GenX.auto<string>
       let receivedCorrectValue = Trigger()
 
-      async { return Error value }
-      |> AsyncResult.teeErrorIf (fun _ -> true) (fun x -> if x = value then receivedCorrectValue.Trigger())
-      |> Async.RunSynchronously
+      Error value
+      |> testAsync (AsyncResult.teeErrorIf (fun _ -> true) (fun x -> if x = value then receivedCorrectValue.Trigger()))
       |> ignore
 
       test <@ receivedCorrectValue.Triggered @>
@@ -962,13 +963,7 @@ module AsyncResult =
   let ``teeErrorIf returns the original value`` () =
     Property.check <| property {
       let! value = GenX.auto<Result<string,int>>
-
-      let res =
-        async { return value }
-        |> AsyncResult.teeErrorIf (fun _ -> true) ignore
-        |> Async.RunSynchronously
-
-      test <@ res = value @>
+      test <@ value |> testAsync (AsyncResult.teeErrorIf (fun _ -> true) ignore) = value @>
     }
 
 
@@ -978,9 +973,8 @@ module AsyncResult =
       let! value = GenX.auto<string>
       let t = Trigger()
 
-      async { return Error value }
-      |> AsyncResult.teeError (fun _ -> t.Trigger())
-      |> Async.RunSynchronously
+      Error value
+      |> testAsync (AsyncResult.teeError (fun _ -> t.Trigger()))
       |> ignore
 
       test <@ t.Triggered @>
@@ -993,9 +987,8 @@ module AsyncResult =
       let! value = GenX.auto<string>
       let t = Trigger()
 
-      async { return Ok value }
-      |> AsyncResult.teeError (fun _ -> t.Trigger())
-      |> Async.RunSynchronously
+      Ok value
+      |> testAsync (AsyncResult.teeError (fun _ -> t.Trigger()))
       |> ignore
 
       test <@ not t.Triggered @>
@@ -1008,9 +1001,8 @@ module AsyncResult =
       let! value = GenX.auto<string>
       let receivedCorrectValue = Trigger()
 
-      async { return Error value }
-      |> AsyncResult.teeError (fun x -> if x = value then receivedCorrectValue.Trigger())
-      |> Async.RunSynchronously
+      Error value
+      |> testAsync (AsyncResult.teeError (fun x -> if x = value then receivedCorrectValue.Trigger()))
       |> ignore
 
       test <@ receivedCorrectValue.Triggered @>
@@ -1021,11 +1013,5 @@ module AsyncResult =
   let ``teeError returns the original value`` () =
     Property.check <| property {
       let! value = GenX.auto<Result<string,int>>
-
-      let res =
-        async { return value }
-        |> AsyncResult.teeError ignore
-        |> Async.RunSynchronously
-
-      test <@ res = value @>
+      test <@ value |> testAsync (AsyncResult.teeError ignore) = value @>
     }

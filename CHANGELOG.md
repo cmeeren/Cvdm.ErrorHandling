@@ -1,6 +1,11 @@
 Changelog
 ===
 
+##### 1.0.0 (2018-07-05)
+
+* Support Fable
+* Add more helper functions
+
 ##### 0.5.1 (2018-03-14)
 
 * Fix `use`/`use!` in conjunction with non-nullable `IDisposable` types
@@ -31,4 +36,3 @@ Changelog
 ##### 0.1.0 (2018-03-07)
 
 * Initial release
-

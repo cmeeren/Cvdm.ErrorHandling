@@ -32,8 +32,31 @@ module Result =
     | None -> Ok ()
 
   /// Returns Ok if the two values are equal, or the specified error if not.
+  /// Same as requireEqual, but with a signature that fits piping better than
+  /// normal function application.
   let requireEqualTo other err this =
     if this = other then Ok () else Error err
+
+  /// Returns Ok if the two values are equal, or the specified error if not.
+  /// Same as requireEqualTo, but with a signature that fits normal function
+  /// application better than piping.
+  let requireEqual x1 x2 error =
+    if x1 = x2 then Ok () else Error error
+
+  /// Returns Ok if the sequence is empty, or the specified error if not.
+  let requireEmpty error xs =
+    if Seq.isEmpty xs then Ok () else Error error
+
+  /// Returns the specified error if the sequence is empty, or Ok if not.
+  let requireNotEmpty error xs =
+    if Seq.isEmpty xs then Error error else Ok ()
+
+  /// Returns the first item of the sequence if it exists, or the specified
+  /// error if the sequence is empty
+  let requireHead error xs =
+    match Seq.tryHead xs with
+    | Some x -> Ok x
+    | None -> Error error
 
   /// Replaces a unit error value with a custom error value. Safer than setError
   /// since you're not losing any information.
@@ -117,6 +140,23 @@ module AsyncResult =
   /// Converts an Option to a Result, using the given error if None.
   let requireNone error option =
     option |> asyncMap (Result.requireNone error)
+
+  /// Returns Ok if the two values are equal, or the specified error if not.
+  let requireEqualTo other error this =
+    this |> asyncMap (Result.requireEqualTo other error)
+
+  /// Returns Ok if the sequence is empty, or the specified error if not.
+  let requireEmpty error xs =
+    xs |> asyncMap (Result.requireEmpty error)
+
+  /// Returns the specified error if the sequence is empty, or Ok if not.
+  let requireNotEmpty error xs =
+    xs |> asyncMap (Result.requireNotEmpty error)
+
+  /// Returns the first item of the sequence if it exists, or the specified
+  /// error if the sequence is empty
+  let requireHead error xs =
+    xs |> asyncMap (Result.requireHead error)
 
   /// Replaces a unit error value of an async-wrapped result with a custom
   /// error value. Safer than setError since you're not losing any information.

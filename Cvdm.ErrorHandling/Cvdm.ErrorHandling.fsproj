@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;netstandard1.6;net45</TargetFrameworks>
@@ -8,13 +8,13 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <Version>0.5.1</Version>
+    <Version>1.0.0</Version>
     <Authors>Christer van der Meeren;Stefano Pian</Authors>
     <Description>AsyncResult and Result computation expressions and helper functions for error handling in F#.</Description>
     <PackageLicenseUrl>https://github.com/cmeeren/Cvdm.ErrorHandling/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/cmeeren/Cvdm.ErrorHandling</PackageProjectUrl>
     <PackageTags>f# error-handling computation-expression asyncresult async result</PackageTags>
-    <PackageReleaseNotes>Fix `use`/`use!` in conjunction with non-nullable `IDisposable` types</PackageReleaseNotes>
+    <PackageReleaseNotes>Fable compatibility, more helper functions</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -28,4 +28,10 @@
     <Compile Include="AsyncResultBuilder.fs" />
     <Compile Include="Helpers.fs" />
   </ItemGroup>
+
+  <!-- Add source files to package for Fable compatibility -->
+  <ItemGroup>
+    <Content Include="*.fsproj; *.fs" PackagePath="fable\" />
+  </ItemGroup>
+
 </Project>
