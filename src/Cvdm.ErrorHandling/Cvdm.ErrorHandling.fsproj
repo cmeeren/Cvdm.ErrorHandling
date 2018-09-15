@@ -6,7 +6,7 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
     <Authors>Christer van der Meeren;Stefano Pian</Authors>
     <Description>AsyncResult and Result computation expressions and helper functions for error handling in F#.</Description>
     <PackageLicenseUrl>https://github.com/cmeeren/Cvdm.ErrorHandling/blob/master/LICENSE</PackageLicenseUrl>

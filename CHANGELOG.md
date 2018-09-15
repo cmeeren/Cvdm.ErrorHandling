@@ -1,6 +1,10 @@
 Changelog
 ===
 
+##### 1.0.2 (2018-09-15)
+
+- Fix weird design-time crash when used if project code is run in XAML designer
+
 ##### 1.0.1 (2018-08-05)
 
 * Fix `try ... with`/`try ... finally` in `asyncResult` not catching exceptions thrown from plain `async` expressions
