@@ -1,11 +1,10 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;netstandard1.6;net45</TargetFrameworks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
-
   <PropertyGroup>
     <Version>1.0.1</Version>
     <Authors>Christer van der Meeren;Stefano Pian</Authors>
@@ -15,25 +14,20 @@
     <PackageTags>f# error-handling computation-expression asyncresult async result</PackageTags>
     <PackageReleaseNotes>Fix try/with/finally in asyncResult not catching exceptions thrown from a plain async expressions</PackageReleaseNotes>
   </PropertyGroup>
-
   <PropertyGroup>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors />
   </PropertyGroup>
-
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="ResultBuilder.fs" />
     <Compile Include="AsyncResultBuilder.fs" />
     <Compile Include="Helpers.fs" />
   </ItemGroup>
-
   <!-- Add source files to package for Fable compatibility -->
   <ItemGroup>
     <Content Include="*.fsproj; *.fs" PackagePath="fable\" />
     <None Include="paket.references" />
   </ItemGroup>
-
-  <Import Project="..\.paket\Paket.Restore.targets" />
-
+  <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

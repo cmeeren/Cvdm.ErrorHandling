@@ -1,13 +1,11 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>netcoreapp2.0;net461</TargetFrameworks>
   </PropertyGroup>
-
   <PropertyGroup>
     <NoWarn>FS0988</NoWarn>
   </PropertyGroup>
-
   <ItemGroup>
     <Compile Include="Helpers.fs" />
     <Compile Include="ResultBuilderTests.fs" />
@@ -16,11 +14,8 @@
     <Compile Include="NamespaceOverride.fs" />
     <None Include="paket.references" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\Cvdm.ErrorHandling\Cvdm.ErrorHandling.fsproj" />
   </ItemGroup>
-
-  <Import Project="..\.paket\Paket.Restore.targets" />
-
+  <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
