@@ -1,9 +1,9 @@
 version: 1.0.{build}
 image: Visual Studio 2017
 build_script:
-- cmd: dotnet build -c Release
+- cmd: dotnet build -c Release src
 test_script:
-- cmd: dotnet test -c Release Cvdm.ErrorHandling.Tests
+- cmd: dotnet test -c Release src\Cvdm.ErrorHandling.Tests
 artifacts:
 - path: '**\Release\*.nupkg'
 deploy:
