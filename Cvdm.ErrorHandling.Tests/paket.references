@@ -1,0 +1,8 @@
+group Test
+  Hedgehog
+  Hedgehog.Experimental
+  Microsoft.NET.Test.Sdk
+  TypeShape
+  Unquote
+  xunit.core
+  xunit.runner.visualstudio version_in_path: true

@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;netstandard1.6;net45</TargetFrameworks>
-    <FSharpCoreImplicitPackageVersion>4.1.*</FSharpCoreImplicitPackageVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
@@ -32,6 +31,9 @@
   <!-- Add source files to package for Fable compatibility -->
   <ItemGroup>
     <Content Include="*.fsproj; *.fs" PackagePath="fable\" />
+    <None Include="paket.references" />
   </ItemGroup>
+
+  <Import Project="..\.paket\Paket.Restore.targets" />
 
 </Project>
