@@ -1088,13 +1088,12 @@ let ``use! ignores null async-wrapped disposable`` () =
 [<Fact>]
 let ``use! handles non-nullable async-wrapped disposable`` () =
   Property.check <| property {
-    raises<CustomDisposedException>
-      <@
-        asyncResult {
-          use! _d = async { return (new CustomDisposable()) }
-          do! Ok ()
-        } |> Async.RunSynchronously
-      @>
+    let comp =
+      asyncResult {
+        use! _d = async { return (new CustomDisposable()) }
+        do! Ok ()
+      }
+    raises<CustomDisposedException> <@ Async.RunSynchronously comp @>
   }
 
 [<Fact>]
@@ -1107,4 +1106,191 @@ let ``use handles non-nullable async-wrapped disposable`` () =
           do! Ok ()
         } |> Async.RunSynchronously
       @>
+  }
+
+[<Fact>]
+let ``computation is lazy: defining does not run effects`` () =
+  Property.check <| property {
+    let t = Trigger()
+    asyncResult { t.Trigger () } |> ignore
+    test <@ not <| t.Triggered @>
+  }
+
+[<Fact>]
+let ``early return behaves as async`` () =
+  Property.check <| property {
+    let t1 = Trigger()
+    let t2 = Trigger()
+
+    async { return (); t1.Trigger () } |> Async.RunSynchronously
+    asyncResult { return (); t2.Trigger () } |> Async.RunSynchronously |> ignore
+
+    test <@ t1.Triggered @>
+    test <@ t2.Triggered @>
+  }
+
+// See "Monad laws" at http://tryjoinads.org/docs/computations/monads.html
+[<Fact>]
+let ``monad law: left identity with asyncResult`` () =
+  Property.check <| property {
+    let! x = GenX.auto<string>
+    let! fx = GenX.auto<Result<string,int>>
+    let fx = async.Return fx
+    let m = asyncResult
+    let m1 =
+      m { let! v = m { return x } in return! fx }
+      |> Async.RunSynchronously
+    let m2 =
+      m { return! fx }
+      |> Async.RunSynchronously
+    test <@ m1 = m2 @>
+  }
+
+// See "Monad laws" at http://tryjoinads.org/docs/computations/monads.html
+[<Fact>]
+let ``monad law: right identity with asyncResult`` () =
+  Property.check <| property {
+    let! n = GenX.auto<Result<string,int>>
+    let n = async.Return n
+    let m = asyncResult
+    let m1 =
+      m { let! x = n in return x }
+      |> Async.RunSynchronously
+    let m2 =
+      m { return! n }
+      |> Async.RunSynchronously
+    test <@ m1 = m2 @>
+  }
+
+// See "Monad laws" at http://tryjoinads.org/docs/computations/monads.html
+[<Fact>]
+let ``monad law: associativity with asyncResult`` () =
+  Property.check <| property {
+    let! n = GenX.auto<Result<string,int>>
+    let! fx = GenX.auto<Result<string,int>>
+    let! gy = GenX.auto<Result<string,int>>
+    let n = async.Return n
+    let fx = async.Return fx
+    let gy = async.Return gy
+    let m = asyncResult
+    let m1 =
+      m { let! y = m { let! x = n in return! fx } in return! gy }
+      |> Async.RunSynchronously
+    let m2 =
+      m { let! x = n in return! m { let! y = fx in return! gy } }
+      |> Async.RunSynchronously
+    let m3 =
+      m { let! x = n in let! y = fx in return! gy }
+      |> Async.RunSynchronously
+    test <@ m1 = m2 @>
+    test <@ m1 = m3 @>
+  }
+
+// See "Monad laws" at http://tryjoinads.org/docs/computations/monads.html
+[<Fact>]
+let ``monad law: left identity with result`` () =
+  Property.check <| property {
+    let! x = GenX.auto<string>
+    let! fx = GenX.auto<Result<string,int>>
+    let m = asyncResult
+    let m1 =
+      m { let! v = m { return x } in return! fx }
+      |> Async.RunSynchronously
+    let m2 =
+      m { return! fx }
+      |> Async.RunSynchronously
+    test <@ m1 = m2 @>
+  }
+
+// See "Monad laws" at http://tryjoinads.org/docs/computations/monads.html
+[<Fact>]
+let ``monad law: right identity with result`` () =
+  Property.check <| property {
+    let! n = GenX.auto<Result<string,int>>
+    let m = asyncResult
+    let m1 =
+      m { let! x = n in return x }
+      |> Async.RunSynchronously
+    let m2 =
+      m { return! n }
+      |> Async.RunSynchronously
+    test <@ m1 = m2 @>
+  }
+
+// See "Monad laws" at http://tryjoinads.org/docs/computations/monads.html
+[<Fact>]
+let ``monad law: associativity with result`` () =
+  Property.check <| property {
+    let! n = GenX.auto<Result<string,int>>
+    let! fx = GenX.auto<Result<string,int>>
+    let! gy = GenX.auto<Result<string,int>>
+    let m = asyncResult
+    let m1 =
+      m { let! y = m { let! x = n in return! fx } in return! gy }
+      |> Async.RunSynchronously
+    let m2 =
+      m { let! x = n in return! m { let! y = fx in return! gy } }
+      |> Async.RunSynchronously
+    let m3 =
+      m { let! x = n in let! y = fx in return! gy }
+      |> Async.RunSynchronously
+    test <@ m1 = m2 @>
+    test <@ m1 = m3 @>
+  }
+
+// See "Monad laws" at http://tryjoinads.org/docs/computations/monads.html
+[<Fact>]
+let ``monad law: left identity with async`` () =
+  Property.check <| property {
+    let! x = GenX.auto<string>
+    let! fx = GenX.auto<int>
+    let fx = async.Return fx
+    let m = asyncResult
+    let m1 =
+      m { let! v = m { return x } in return! fx }
+      |> Async.RunSynchronously
+    let m2 =
+      m { return! fx }
+      |> Async.RunSynchronously
+    test <@ m1 = m2 @>
+  }
+
+// See "Monad laws" at http://tryjoinads.org/docs/computations/monads.html
+[<Fact>]
+let ``monad law: right identity with async`` () =
+  Property.check <| property {
+    let! n = GenX.auto<string>
+    let n = async.Return n
+    let m = asyncResult
+    let m1 =
+      m { let! x = n in return x }
+      |> Async.RunSynchronously
+    let m2 =
+      m { return! n }
+      |> Async.RunSynchronously
+    test <@ m1 = m2 @>
+  }
+
+// See "Monad laws" at http://tryjoinads.org/docs/computations/monads.html
+[<Fact>]
+let ``monad law: associativity with async`` () =
+  Property.check <| property {
+    let! n = GenX.auto<string>
+    let! fx = GenX.auto<string>
+    let! gy = GenX.auto<string>
+    let n = async.Return n
+    let fx = async.Return fx
+    let gy = async.Return gy
+    let m = asyncResult
+    let m1 =
+      m { let! y = m { let! x = n in return! fx } in return! gy }
+      |> Async.RunSynchronously
+    let m2 =
+      m { let! x = n in return! m { let! y = fx in return! gy } }
+      |> Async.RunSynchronously
+    let m3 =
+      m { let! x = n in let! y = fx in return! gy }
+      |> Async.RunSynchronously
+    test <@ m1 = m2 @>
+    test <@ m1 = m3 @>
   }

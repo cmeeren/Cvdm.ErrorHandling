@@ -551,23 +551,61 @@ let ``use! ignores null disposable`` () =
 [<Fact>]
 let ``use! handles non-nullable disposable`` () =
   Property.check <| property {
-    raises<CustomDisposedException> 
-      <@ 
+    raises<CustomDisposedException>
+      <@
         result {
           use! _d = Ok (new CustomDisposable())
           do! Ok ()
-        }    
+        }
       @>
   }
 
 [<Fact>]
 let ``use handles non-nullable disposable`` () =
   Property.check <| property {
-    raises<CustomDisposedException> 
-      <@ 
+    raises<CustomDisposedException>
+      <@
         result {
           use _d = new CustomDisposable()
           do! Ok ()
-        }  
+        }
       @>
-  }  
+  }
+
+// See "Monad laws" at http://tryjoinads.org/docs/computations/monads.html
+[<Fact>]
+let ``monad law: left identity`` () =
+  Property.check <| property {
+    let! x = GenX.auto<string>
+    let! fx = GenX.auto<Result<string,int>>
+    let m = result
+    let m1 = m { let! v = m { return x } in return! fx }
+    let m2 = m { return! fx }
+    test <@ m1 = m2 @>
+  }
+
+// See "Monad laws" at http://tryjoinads.org/docs/computations/monads.html
+[<Fact>]
+let ``monad law: right identity`` () =
+  Property.check <| property {
+    let! n = GenX.auto<Result<string,int>>
+    let m = result
+    let m1 = m { let! x = n in return x }
+    let m2 = m { return! n }
+    test <@ m1 = m2 @>
+  }
+
+// See "Monad laws" at http://tryjoinads.org/docs/computations/monads.html
+[<Fact>]
+let ``monad law: associativity`` () =
+  Property.check <| property {
+    let! n = GenX.auto<Result<string,int>>
+    let! fx = GenX.auto<Result<string,int>>
+    let! gy = GenX.auto<Result<string,int>>
+    let m = result
+    let m1 = m { let! y = m { let! x = n in return! fx } in return! gy }
+    let m2 = m { let! x = n in return! m { let! y = fx in return! gy } }
+    let m3 = m { let! x = n in let! y = fx in return! gy }
+    test <@ m1 = m2 @>
+    test <@ m1 = m3 @>
+  }
