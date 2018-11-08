@@ -50,6 +50,17 @@ type AsyncResultBuilder() =
       : Async<Result<'U, 'TError>> =
     this.Bind(this.ReturnFrom result, binder)
 
+  member __.Delay
+      (generator: unit -> Async<Result<'T, 'TError>>)
+      : Async<Result<'T, 'TError>> =
+    async.Delay generator
+
+  member this.Combine
+      (computation1: Async<Result<unit, 'TError>>,
+       computation2: Async<Result<'U, 'TError>>)
+      : Async<Result<'U, 'TError>> =
+    this.Bind(computation1, fun () -> computation2)
+
   member __.TryWith
       (computation: Async<Result<'T, 'TError>>,
        handler: System.Exception -> Async<Result<'T, 'TError>>)
@@ -62,22 +73,11 @@ type AsyncResultBuilder() =
       : Async<Result<'T, 'TError>> =
     async.TryFinally(computation, compensation)
 
-  member __.Delay
-      (generator: unit -> Async<Result<'T, 'TError>>)
-      : Async<Result<'T, 'TError>> =
-    async.Delay generator
-
   member __.Using
       (resource: 'T when 'T :> IDisposable,
        binder: 'T -> Async<Result<'U, 'TError>>)
       : Async<Result<'U, 'TError>> =
     async.Using(resource, binder)
-
-  member this.Combine
-      (computation1: Async<Result<unit, 'TError>>,
-       computation2: Async<Result<'U, 'TError>>)
-      : Async<Result<'U, 'TError>> =
-    this.Bind(computation1, fun () -> computation2)
 
   member this.While
       (guard: unit -> bool, computation: Async<Result<unit, 'TError>>)

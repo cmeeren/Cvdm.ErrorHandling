@@ -11,13 +11,13 @@ type ResultBuilder() =
   member __.ReturnFrom (result: Result<'T, 'TError>) : Result<'T, 'TError> =
     result
 
+  member this.Zero () : Result<unit, 'TError> =
+    this.Return ()
+
   member __.Bind
       (result: Result<'T, 'TError>, binder: 'T -> Result<'U, 'TError>)
       : Result<'U, 'TError> =
     Result.bind binder result
-
-  member this.Zero () : Result<unit, 'TError> =
-    this.Return ()
 
   member __.Delay
       (generator: unit -> Result<'T, 'TError>)
