@@ -51,7 +51,7 @@ The expression above will stop at and return the first error.
 The `asyncResult` computation expression
 ----------------------------------------
 
-The `asyncResult` computation expression is more or less identical to the `result` expression except it's centered around `Async<Result<_,_>> `, with overloads supporting `Result<_,_>` (which is wrapped in `Async`) and `Async<_>` (whose value is wrapped using `Result.Ok`). In other words, on the right side of `let!`, `do!` etc. you can have `Async<_>`, `Async<Result<_,_>` or `Async<_>`.
+The `asyncResult` computation expression is more or less identical to the `result` expression except it's centered around `Async<Result<_,_>> `, with overloads supporting `Result<_,_>` (which is wrapped in `Async`) and `Async<_>` (whose value is wrapped using `Result.Ok`). Overloads also exists for `Task<_>` and `Task`. In other words, on the right side of `let!`, `do!` etc. you can have `Async<Result<_,_>>`, `Async<_>`, `Result<_,_>`, `Task<Result<_,_>>`, `Task<_>`, or `Task`.
 
 `asyncResult` is intended to be almost a drop-in replacement of `result`. If you have a `result` expression and you need to unwrap `Async` values inside it, just change it to `asyncResult`. (The consumers of the changed expression will of course now need to change since it's `Async<Result<_,_>>` instead of `Result<_,_>`, but the contents of the expression itself should not need to change just from this switch.)
 
