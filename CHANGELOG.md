@@ -1,6 +1,12 @@
 Changelog
 ===
 
+##### 2.0.0 (2018-11-08)
+
+- Breaking: `asyncResult` computation is now lazy; just defining it won't do anything.
+- Possibly breaking: Computation expressions have been rewritten. Apart from the previously mentioned laziness, all old and new unit tests (fairly extensive) pass for both 1.0.2 and 2.0.0. However, I can not guarantee there aren't breaks in untested edge cases.
+- `asyncResult` can now bind  `Task<_>` and `Task` expressions
+
 ##### 1.0.2 (2018-09-15)
 
 - Fix weird design-time crash when used if project code is run in XAML designer
