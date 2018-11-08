@@ -38,6 +38,7 @@ let ``return! returns async result value unmodified`` () =
     test <@ result = res @>
   }
 
+
 [<Fact>]
 let ``return! returns result value wrapped in async`` () =
   Property.check <| property {
@@ -49,6 +50,7 @@ let ``return! returns result value wrapped in async`` () =
 
     test <@ result = res @>
   }
+
 
 [<Fact>]
 let ``return! returns async wrapped in Ok`` () =
@@ -169,6 +171,7 @@ let ``stops and returns error when do error result`` () =
     test <@ result = Error err @>
     test <@ not t.Triggered @>
   }
+
 
 [<Fact>]
 let ``stops and returns error when do async error result`` () =
@@ -296,6 +299,7 @@ let ``child workflow gives same result as inlined when initial wrapped value is 
 
     test <@ result1 = result2 @>
   }
+
 
 [<Fact>]
 let ``child workflow gives same result as inlined when initial wrapped value is async-wrapped result`` () =
@@ -431,7 +435,6 @@ let ``behavior of if with async-wrapped ok value`` () =
   }
 
 
-
 [<Fact>]
 let ``behavior of if with error value`` () =
   Property.check <| property {
@@ -492,6 +495,7 @@ let ``behavior of simple if-else when true`` () =
     test <@ not tElse.Triggered @>
     test <@ t.Triggered @>
   }
+
 
 [<Fact>]
 let ``behavior of simple if-else when false`` () =
@@ -863,6 +867,7 @@ let ``behavior of try-with-finally when thrown from plain async`` () =
     test <@ tFinally.Triggered @>
   }
 
+
 [<Fact>]
 let ``simple use disposes`` () =
   Property.check <| property {
@@ -1062,6 +1067,7 @@ let ``use! ignores null Ok-wrapped disposable`` () =
     test <@ result = Ok () @>
   }
 
+
 [<Fact>]
 let ``use! ignores null async and result wrapped disposable`` () =
   Property.check <| property {
@@ -1085,6 +1091,7 @@ let ``use! ignores null async-wrapped disposable`` () =
     test <@ result = Ok () @>
   }
 
+
 [<Fact>]
 let ``use! handles non-nullable async-wrapped disposable`` () =
   Property.check <| property {
@@ -1095,6 +1102,7 @@ let ``use! handles non-nullable async-wrapped disposable`` () =
       }
     raises<CustomDisposedException> <@ Async.RunSynchronously comp @>
   }
+
 
 [<Fact>]
 let ``use handles non-nullable async-wrapped disposable`` () =
@@ -1108,6 +1116,7 @@ let ``use handles non-nullable async-wrapped disposable`` () =
       @>
   }
 
+
 [<Fact>]
 let ``computation is lazy: defining does not run effects`` () =
   Property.check <| property {
@@ -1115,6 +1124,7 @@ let ``computation is lazy: defining does not run effects`` () =
     asyncResult { t.Trigger () } |> ignore
     test <@ not <| t.Triggered @>
   }
+
 
 [<Fact>]
 let ``early return behaves as async`` () =
@@ -1128,6 +1138,7 @@ let ``early return behaves as async`` () =
     test <@ t1.Triggered @>
     test <@ t2.Triggered @>
   }
+
 
 // See "Monad laws" at http://tryjoinads.org/docs/computations/monads.html
 [<Fact>]
@@ -1146,6 +1157,7 @@ let ``monad law: left identity with asyncResult`` () =
     test <@ m1 = m2 @>
   }
 
+
 // See "Monad laws" at http://tryjoinads.org/docs/computations/monads.html
 [<Fact>]
 let ``monad law: right identity with asyncResult`` () =
@@ -1161,6 +1173,7 @@ let ``monad law: right identity with asyncResult`` () =
       |> Async.RunSynchronously
     test <@ m1 = m2 @>
   }
+
 
 // See "Monad laws" at http://tryjoinads.org/docs/computations/monads.html
 [<Fact>]
@@ -1186,6 +1199,7 @@ let ``monad law: associativity with asyncResult`` () =
     test <@ m1 = m3 @>
   }
 
+
 // See "Monad laws" at http://tryjoinads.org/docs/computations/monads.html
 [<Fact>]
 let ``monad law: left identity with result`` () =
@@ -1202,6 +1216,7 @@ let ``monad law: left identity with result`` () =
     test <@ m1 = m2 @>
   }
 
+
 // See "Monad laws" at http://tryjoinads.org/docs/computations/monads.html
 [<Fact>]
 let ``monad law: right identity with result`` () =
@@ -1216,6 +1231,7 @@ let ``monad law: right identity with result`` () =
       |> Async.RunSynchronously
     test <@ m1 = m2 @>
   }
+
 
 // See "Monad laws" at http://tryjoinads.org/docs/computations/monads.html
 [<Fact>]
@@ -1238,6 +1254,7 @@ let ``monad law: associativity with result`` () =
     test <@ m1 = m3 @>
   }
 
+
 // See "Monad laws" at http://tryjoinads.org/docs/computations/monads.html
 [<Fact>]
 let ``monad law: left identity with async`` () =
@@ -1255,6 +1272,7 @@ let ``monad law: left identity with async`` () =
     test <@ m1 = m2 @>
   }
 
+
 // See "Monad laws" at http://tryjoinads.org/docs/computations/monads.html
 [<Fact>]
 let ``monad law: right identity with async`` () =
@@ -1270,6 +1288,7 @@ let ``monad law: right identity with async`` () =
       |> Async.RunSynchronously
     test <@ m1 = m2 @>
   }
+
 
 // See "Monad laws" at http://tryjoinads.org/docs/computations/monads.html
 [<Fact>]

@@ -200,7 +200,6 @@ let ``behavior of if with wrapped ok value`` () =
   }
 
 
-
 [<Fact>]
 let ``behavior of if with wrapped error value`` () =
   Property.check <| property {
@@ -279,6 +278,7 @@ let ``behavior of if-else with wrapped ok value`` () =
     test <@ not tElse.Triggered @>
     test <@ t.Triggered @>
   }
+
 
 [<Fact>]
 let ``behavior of if-else with wrapped error value`` () =
@@ -560,6 +560,7 @@ let ``use! handles non-nullable disposable`` () =
       @>
   }
 
+
 [<Fact>]
 let ``use handles non-nullable disposable`` () =
   Property.check <| property {
@@ -571,6 +572,7 @@ let ``use handles non-nullable disposable`` () =
         }
       @>
   }
+
 
 // See "Monad laws" at http://tryjoinads.org/docs/computations/monads.html
 [<Fact>]
@@ -584,6 +586,7 @@ let ``monad law: left identity`` () =
     test <@ m1 = m2 @>
   }
 
+
 // See "Monad laws" at http://tryjoinads.org/docs/computations/monads.html
 [<Fact>]
 let ``monad law: right identity`` () =
@@ -594,6 +597,7 @@ let ``monad law: right identity`` () =
     let m2 = m { return! n }
     test <@ m1 = m2 @>
   }
+
 
 // See "Monad laws" at http://tryjoinads.org/docs/computations/monads.html
 [<Fact>]
