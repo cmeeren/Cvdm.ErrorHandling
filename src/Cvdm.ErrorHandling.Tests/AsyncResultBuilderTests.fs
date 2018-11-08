@@ -1,6 +1,7 @@
 ﻿module Cvdm.ErrorHandling.Tests.AsyncResultBuilderTests
 
 open System
+open System.Threading.Tasks
 open Xunit
 open Hedgehog
 open Swensen.Unquote
@@ -1312,4 +1313,88 @@ let ``monad law: associativity with async`` () =
       |> Async.RunSynchronously
     test <@ m1 = m2 @>
     test <@ m1 = m3 @>
+  }
+
+
+[<Fact>]
+let ``able to return! generic task`` () =
+  Property.check <| property {
+    let! x = GenX.auto<int>
+    let task = Task.FromResult x
+    let res = asyncResult { return! task } |> Async.RunSynchronously
+    test <@ res = Ok x @>
+  }
+
+
+[<Fact>]
+let ``able to return! task-wrapped result`` () =
+  Property.check <| property {
+    let! x = GenX.auto<Result<int, string>>
+    let res = asyncResult { return! Task.FromResult x } |> Async.RunSynchronously
+    test <@ res = x @>
+  }
+
+
+[<Fact>]
+let ``able to return! nongeneric task`` () =
+  Property.check <| property {
+    let res = asyncResult { return! Task.CompletedTask } |> Async.RunSynchronously
+    test <@ res = Ok () @>
+  }
+
+
+[<Fact>]
+let ``able to bind generic task`` () =
+  Property.check <| property {
+    let! x = GenX.auto<int>
+    let task = Task.FromResult x
+    let res =
+      asyncResult {
+        let! x = task
+        return x
+      } |> Async.RunSynchronously
+    test <@ res = Ok x @>
+  }
+
+
+[<Fact>]
+let ``able to bind task-wrapped Ok result and continue`` () =
+  Property.check <| property {
+    let! x = GenX.auto<int>
+    let! y = GenX.auto<int>
+    let task = Task.FromResult (Ok x)
+    let res =
+      asyncResult {
+        let! x = task
+        return y
+      } |> Async.RunSynchronously
+    test <@ res = Ok y @>
+  }
+
+
+[<Fact>]
+let ``able to bind task-wrapped Error result and stop`` () =
+  Property.check <| property {
+    let! x = GenX.auto<int> |> Gen.map Error
+    let! y = GenX.auto<int>
+    let task = Task.FromResult (Error x)
+    let res =
+      asyncResult {
+        let! x = task
+        return y
+      } |> Async.RunSynchronously
+    test <@ res = Error x @>
+  }
+
+
+[<Fact>]
+let ``able to bind nongeneric task`` () =
+  Property.check <| property {
+    let! x = GenX.auto<int>
+    let res =
+      asyncResult {
+        do! Task.CompletedTask
+        return x
+      } |> Async.RunSynchronously
+    test <@ res = Ok x @>
   }

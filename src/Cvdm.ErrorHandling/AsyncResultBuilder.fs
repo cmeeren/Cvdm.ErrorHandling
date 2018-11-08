@@ -3,6 +3,7 @@ module Cvdm.ErrorHandling.AsyncResultBuilder
 
 
 open System
+open System.Threading.Tasks
 
 
 type AsyncResultBuilder() =
@@ -14,6 +15,11 @@ type AsyncResultBuilder() =
       (asyncResult: Async<Result<'T, 'TError>>)
       : Async<Result<'T, 'TError>> =
     asyncResult
+
+  member __.ReturnFrom
+      (taskResult: Task<Result<'T, 'TError>>)
+      : Async<Result<'T, 'TError>> =
+    Async.AwaitTask taskResult
 
   member __.ReturnFrom
       (result: Result<'T, 'TError>)
@@ -32,6 +38,12 @@ type AsyncResultBuilder() =
       | Ok x -> return! binder x
       | Error x -> return Error x
     }
+
+  member this.Bind
+      (taskResult: Task<Result<'T, 'TError>>,
+       binder: 'T -> Async<Result<'U, 'TError>>)
+      : Async<Result<'U, 'TError>> =
+    this.Bind(Async.AwaitTask taskResult, binder)
 
   member this.Bind
       (result: Result<'T, 'TError>, binder: 'T -> Async<Result<'U, 'TError>>)
@@ -95,6 +107,18 @@ module Extensions =
         return Ok x
       }
 
+    member __.ReturnFrom (task: Task<'T>) : Async<Result<'T, 'TError>> =
+      async {
+        let! x = Async.AwaitTask task
+        return Ok x
+      }
+
+    member __.ReturnFrom (task: Task) : Async<Result<unit, 'TError>> =
+      async {
+        do! Async.AwaitTask task
+        return result.Zero ()
+      }
+
     member this.Bind
         (async': Async<'T>, binder: 'T -> Async<Result<'U, 'TError>>)
         : Async<Result<'U, 'TError>> =
@@ -103,6 +127,16 @@ module Extensions =
         return Ok x
       }
       this.Bind(asyncResult, binder)
+
+    member this.Bind
+        (task: Task<'T>, binder: 'T -> Async<Result<'U, 'TError>>)
+        : Async<Result<'U, 'TError>> =
+      this.Bind(Async.AwaitTask task, binder)
+
+    member this.Bind
+        (task: Task, binder: unit -> Async<Result<'T, 'TError>>)
+        : Async<Result<'T, 'TError>> =
+      this.Bind(Async.AwaitTask task, binder)
 
 
 /// A computation expression to build an Async<Result<'T, 'TError>> value.
