@@ -5,10 +5,6 @@ image: Visual Studio 2017
 build:
   verbosity: detailed
 
-environment:
-  NUGET_KEY:
-    secure: G45OD3ASmPDb+WoYqJ+FXzd43FYCWakr6EO720xMk2FU3nm1NtfmcWKM3/a8dBGP
-
 cache:
   - '%USERPROFILE%\.nuget\packages -> paket.lock'
 
