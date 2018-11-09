@@ -16,10 +16,14 @@
 - Possibly breaking: Computation expressions have been rewritten. Apart from the previously mentioned laziness, all old and new unit tests (fairly extensive) pass for both 1.0.2 and 2.0.0. However, I can not guarantee there aren't breaks in untested edge cases.
 
 - asyncResult can now bind  Task&lt;_&gt; and Task expressions</PackageReleaseNotes>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
   </PropertyGroup>
   <PropertyGroup>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors />
+    <NoWarn>FS2003</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />

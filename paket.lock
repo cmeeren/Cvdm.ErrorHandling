@@ -25,8 +25,13 @@ NUGET
       System.Threading.Thread (>= 4.0)
       System.Threading.ThreadPool (>= 4.0.10)
       System.Threading.Timer (>= 4.0.1)
+    Microsoft.Build.Tasks.Git (1.0.0-beta-63127-02) - copy_local: true
     Microsoft.NETCore.Platforms (2.1.1) - redirects: force
     Microsoft.NETCore.Targets (2.1) - redirects: force
+    Microsoft.SourceLink.Common (1.0.0-beta-63127-02) - copy_local: true
+    Microsoft.SourceLink.GitHub (1.0.0-beta-63127-02) - copy_local: true
+      Microsoft.Build.Tasks.Git (>= 1.0.0-beta-63127-02)
+      Microsoft.SourceLink.Common (>= 1.0.0-beta-63127-02)
     runtime.debian.8-x64.runtime.native.System.Security.Cryptography.OpenSsl (4.3.3) - redirects: force
     runtime.debian.9-x64.runtime.native.System.Security.Cryptography.OpenSsl (4.3.3) - redirects: force
     runtime.fedora.23-x64.runtime.native.System.Security.Cryptography.OpenSsl (4.3.3) - redirects: force

@@ -2,6 +2,7 @@ source https://api.nuget.org/v3/index.json
 framework: auto-detect
 
 nuget FSharp.Core >= 4.1.17 redirects: force, lowest_matching: true
+nuget Microsoft.SourceLink.GitHub prerelease copy_local: true
 
 group Test
   source https://api.nuget.org/v3/index.json
