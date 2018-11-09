@@ -40,12 +40,9 @@ Target.create "Pack" (fun _ ->
   )
 )
 
-Target.create "Default" ignore
-
 "Clean"
   ==> "Build"
   ==> "Test"
   ==> "Pack"
-  ==> "Default"
 
-Target.runOrDefault "Default"
+Target.runOrDefault "Pack"
