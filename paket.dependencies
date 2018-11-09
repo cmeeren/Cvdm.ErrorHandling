@@ -14,3 +14,12 @@ group Test
   nuget Unquote
   nuget xunit.core
   nuget xunit.runner.visualstudio version_in_path: true
+
+group Build
+  storage: none
+  source https://api.nuget.org/v3/index.json
+  framework: netstandard2.0
+
+  clitool dotnet-fake
+  nuget Fake.Core.Target
+  nuget Fake.DotNet.Cli
