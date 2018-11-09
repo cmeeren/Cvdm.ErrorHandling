@@ -1,14 +1,25 @@
 version: 1.0.{build}
+
 image: Visual Studio 2017
-build_script:
-- cmd: dotnet build -c Release src
-test_script:
-- cmd: dotnet test -c Release src\Cvdm.ErrorHandling.Tests
-artifacts:
-- path: '**\Release\*.nupkg'
-deploy:
-- provider: NuGet
-  api_key:
+
+build:
+  verbosity: detailed
+
+environment:
+  NUGET_KEY:
     secure: G45OD3ASmPDb+WoYqJ+FXzd43FYCWakr6EO720xMk2FU3nm1NtfmcWKM3/a8dBGP
-  on:
-    appveyor_repo_tag: true
+
+cache:
+  - '%USERPROFILE%\.nuget\packages -> paket.lock'
+
+artifacts:
+  - path: '**\Release\*.nupkg'
+
+build_script:
+  - cmd: fake build
+
+for:
+  - environment:
+      APPVEYOR_REPO_TAG: true
+    build_script:
+      - cmd: fake build -t Publish

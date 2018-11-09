@@ -24,3 +24,4 @@ group Build
   clitool dotnet-fake
   nuget Fake.Core.Target
   nuget Fake.DotNet.Cli
+  nuget Fake.DotNet.Paket
