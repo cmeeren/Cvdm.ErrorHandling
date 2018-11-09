@@ -40,14 +40,6 @@ Target.create "Pack" (fun _ ->
   )
 )
 
-Target.create "Publish" (fun _ ->
-  !! "**/Release/**/*.nupkg"
-  |> Paket.pushFiles (fun p ->
-      { p with
-          ApiKey = Environment.environVarOrFail "NUGET_KEY" }
-    )
-)
-
 Target.create "Default" ignore
 
 "Clean"
@@ -55,6 +47,5 @@ Target.create "Default" ignore
   ==> "Test"
   ==> "Pack"
   ==> "Default"
-  ==> "Publish"
 
 Target.runOrDefault "Default"
