@@ -161,16 +161,19 @@ let ``continues when let async simple value`` () =
 let ``stops and returns error when do error result`` () =
   Property.check <| property {
     let! err = GenX.auto<string>
-    let t = Trigger()
+    let t1 = Trigger()
+    let t2 = Trigger()
 
     let result =
       asyncResult {
+        t1.Trigger()
         do! Error err
-        t.Trigger()
+        t2.Trigger()
       } |> Async.RunSynchronously
 
     test <@ result = Error err @>
-    test <@ not t.Triggered @>
+    test <@ t1.Triggered @>
+    test <@ not t2.Triggered @>
   }
 
 
@@ -178,16 +181,19 @@ let ``stops and returns error when do error result`` () =
 let ``stops and returns error when do async error result`` () =
   Property.check <| property {
     let! err = GenX.auto<string>
-    let t = Trigger()
+    let t1 = Trigger()
+    let t2 = Trigger()
 
     let result =
       asyncResult {
+        t1.Trigger()
         do! async { return Error err }
-        t.Trigger()
+        t2.Trigger()
       } |> Async.RunSynchronously
 
     test <@ result = Error err @>
-    test <@ not t.Triggered @>
+    test <@ t1.Triggered @>
+    test <@ not t2.Triggered @>
   }
 
 
@@ -195,17 +201,20 @@ let ``stops and returns error when do async error result`` () =
 let ``stops and returns error when let error result`` () =
   Property.check <| property {
     let! err = GenX.auto<string>
-    let t = Trigger()
+    let t1 = Trigger()
+    let t2 = Trigger()
 
     let result =
       asyncResult {
+        t1.Trigger()
         let! x = Error err
-        t.Trigger()
+        t2.Trigger()
         return x
       } |> Async.RunSynchronously
 
     test <@ result = Error err @>
-    test <@ not t.Triggered @>
+    test <@ t1.Triggered @>
+    test <@ not t2.Triggered @>
   }
 
 
@@ -213,17 +222,20 @@ let ``stops and returns error when let error result`` () =
 let ``stops and returns error when let async error result`` () =
   Property.check <| property {
     let! err = GenX.auto<string>
-    let t = Trigger()
+    let t1 = Trigger()
+    let t2 = Trigger()
 
     let result =
       asyncResult {
+        t1.Trigger()
         let! x = async { return Error err }
-        t.Trigger()
+        t2.Trigger()
         return x
       } |> Async.RunSynchronously
 
     test <@ result = Error err @>
-    test <@ not t.Triggered @>
+    test <@ t1.Triggered @>
+    test <@ not t2.Triggered @>
   }
 
 

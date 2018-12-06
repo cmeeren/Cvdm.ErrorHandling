@@ -55,15 +55,18 @@ let ``continues when let ok`` () =
 let ``stops and returns error when do error`` () =
   Property.check <| property {
     let! err = GenX.auto<string>
-    let t = Trigger()
+    let t1 = Trigger()
+    let t2 = Trigger()
 
     let result = result {
+      t1.Trigger()
       do! Error err
-      t.Trigger()
+      t2.Trigger()
     }
 
     test <@ result = Error err @>
-    test <@ not t.Triggered @>
+    test <@ t1.Triggered @>
+    test <@ not t2.Triggered @>
   }
 
 
@@ -71,16 +74,19 @@ let ``stops and returns error when do error`` () =
 let ``stops and returns error when let error`` () =
   Property.check <| property {
     let! err = GenX.auto<string>
-    let t = Trigger()
+    let t1 = Trigger()
+    let t2 = Trigger()
 
     let result = result {
+      t1.Trigger()
       let! x = Error err
-      t.Trigger()
+      t2.Trigger()
       return x
     }
 
     test <@ result = Error err @>
-    test <@ not t.Triggered @>
+    test <@ t1.Triggered @>
+    test <@ not t2.Triggered @>
   }
 
 
