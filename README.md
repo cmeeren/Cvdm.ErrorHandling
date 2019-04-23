@@ -1,3 +1,8 @@
+DEPRECATED, REPLACED BY FsToolkit.ErrorHandling
+===============================================
+
+This library has been merged into [FsToolkit.ErrorHandling](https://github.com/demystifyfp/FsToolkit.ErrorHandling/) and is now deprecated. Original readme follows below.
+
 Cvdm.ErrorHandling
 ==================
 
